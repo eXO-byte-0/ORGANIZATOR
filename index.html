@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WorkSpace - Gestion de Projets Moderne</title>
+    <title>WorkSpace - Gestion de Projets avec Notifications Email</title>
     <style>
         * {
             margin: 0;
@@ -794,65 +794,272 @@
             animation: pulse 2s infinite;
         }
 
+        /* === COLLABORATORS SELECTOR === */
+        .collaborators-selector {
+            border: 2px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 12px;
+            background: var(--bg-primary);
+            margin-bottom: 20px;
+        }
+
+        .collaborators-selector.focused {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .selected-collaborators {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+            min-height: 32px;
+            align-items: center;
+        }
+
+        .collaborator-tag {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .collaborator-tag .remove-btn {
+            background: rgba(255, 255, 255, 0.3);
+            border: none;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: white;
+            transition: var(--transition);
+        }
+
+        .collaborator-tag .remove-btn:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .collaborators-dropdown {
+            max-height: 200px;
+            overflow-y: auto;
+            border-top: 1px solid var(--border-color);
+            margin-top: 12px;
+            padding-top: 12px;
+        }
+
+        .collaborator-option {
+            padding: 10px 12px;
+            cursor: pointer;
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .collaborator-option:hover {
+            background: var(--bg-secondary);
+        }
+
+        .collaborator-option.selected {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+        }
+
+        .collaborator-avatar {
+            font-size: 24px;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-secondary);
+            border-radius: 50%;
+        }
+
+        .collaborator-info {
+            flex: 1;
+        }
+
+        .collaborator-name {
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .collaborator-role {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .collaborator-option.selected .collaborator-role {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* === ASSIGNED COLLABORATORS DISPLAY === */
+        .assigned-collaborators {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 8px;
+        }
+
+        .assigned-collaborator {
+            font-size: 18px;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-secondary);
+            border-radius: 50%;
+            border: 2px solid white;
+            margin-left: -8px;
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .assigned-collaborator:first-child {
+            margin-left: 0;
+        }
+
+        .assigned-collaborator:hover {
+            transform: scale(1.2);
+            z-index: 2;
+        }
+
+        .assigned-collaborator::after {
+            content: attr(data-name);
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-dark);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: var(--transition);
+        }
+
+        .assigned-collaborator:hover::after {
+            opacity: 1;
+        }
+
         /* Style pour le sélecteur d'emoji */
-.emoji-selector {
-    position: relative;
-    margin-bottom: 16px;
-}
+        .emoji-selector {
+            position: relative;
+            margin-bottom: 16px;
+        }
 
-.emoji-preview {
-    font-size: 24px;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--bg-secondary);
-    border-radius: var(--border-radius);
-    cursor: pointer;
-    transition: var(--transition);
-    margin-bottom: 8px;
-}
+        .emoji-preview {
+            font-size: 24px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-secondary);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            margin-bottom: 8px;
+        }
 
-.emoji-preview:hover {
-    background: var(--border-color);
-}
+        .emoji-preview:hover {
+            background: var(--border-color);
+        }
 
-.emoji-grid {
-    display: none;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 8px;
-    position: absolute;
-    background: var(--bg-primary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
-    padding: 12px;
-    box-shadow: var(--shadow-lg);
-    z-index: 100;
-    max-height: 200px;
-    overflow-y: auto;
-    width: 100%;
-    margin-top: 8px;
-}
+        .emoji-grid {
+            display: none;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 8px;
+            position: absolute;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 12px;
+            box-shadow: var(--shadow-lg);
+            z-index: 100;
+            max-height: 200px;
+            overflow-y: auto;
+            width: 100%;
+            margin-top: 8px;
+        }
 
-.emoji-grid.show {
-    display: grid;
-}
+        .emoji-grid.show {
+            display: grid;
+        }
 
-.emoji-option {
-    font-size: 20px;
-    cursor: pointer;
-    padding: 4px;
-    border-radius: 4px;
-    text-align: center;
-    transition: var(--transition);
-}
+        .emoji-option {
+            font-size: 20px;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            text-align: center;
+            transition: var(--transition);
+        }
 
-.emoji-option:hover {
-    background: var(--primary-color);
-    color: white;
-    transform: scale(1.2);
-}
+        .emoji-option:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: scale(1.2);
+        }
+
+        /* === EMAIL SETTINGS === */
+        .email-settings {
+            background: var(--bg-secondary);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--warning-color);
+        }
+
+        .email-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .email-status.enabled {
+            color: var(--accent-color);
+        }
+
+        .email-status.disabled {
+            color: var(--danger-color);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -1074,6 +1281,7 @@
                         <button class="filter-btn" data-filter="unread">Non lues</button>
                         <button class="filter-btn" data-filter="task-assigned">Assignations</button>
                         <button class="filter-btn" data-filter="task-updated">Mises à jour</button>
+                        <button class="filter-btn" data-filter="event-assigned">Événements</button>
                     </div>
                     <div id="notifications-list"></div>
                 </div>
@@ -1086,6 +1294,41 @@
                 </div>
                 
                 <div style="background: var(--bg-primary); padding: 32px; border-radius: var(--border-radius-lg); box-shadow: var(--shadow);">
+                    <!-- Email Configuration -->
+                    <div style="margin-bottom: 40px;">
+                        <h3 style="margin-bottom: 20px; color: var(--text-primary);">📧 Configuration Email</h3>
+                        <div class="email-settings">
+                            <div class="email-status" id="email-status">
+                                <span>🔴</span>
+                                <span>Notifications email désactivées</span>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="email-notifications-enabled" onchange="App.toggleEmailNotifications(this.checked)">
+                                <label for="email-notifications-enabled">Activer les notifications par email</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="email-task-assigned" checked onchange="App.updateEmailSettings()">
+                                <label for="email-task-assigned">Email lors de l'assignation de tâches</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="email-event-assigned" checked onchange="App.updateEmailSettings()">
+                                <label for="email-event-assigned">Email lors de l'assignation d'événements</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="email-task-updated" onchange="App.updateEmailSettings()">
+                                <label for="email-task-updated">Email lors de mise à jour de tâches</label>
+                            </div>
+                            <div style="display: flex; gap: 12px; margin-top: 16px;">
+                                <button class="btn btn-primary" onclick="App.testEmailConfiguration()">
+                                    📧 Tester l'Email
+                                </button>
+                                <button class="btn btn-secondary" onclick="App.showEmailSettings()">
+                                    ⚙️ Configuration Serveur Email
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <div style="margin-bottom: 40px;">
                         <h3 style="margin-bottom: 20px; color: var(--text-primary);">🔔 Notifications</h3>
                         <div style="display: flex; gap: 12px; flex-wrap: wrap;">
@@ -1208,6 +1451,15 @@
                     <label class="form-label">Description</label>
                     <textarea class="form-textarea" name="description" placeholder="Décrivez votre tâche..."></textarea>
                 </div>
+                <div class="form-group">
+                    <label class="form-label">Assigner à des collaborateurs</label>
+                    <div class="collaborators-selector" id="task-collaborators-selector">
+                        <div class="selected-collaborators" id="task-selected-collaborators">
+                            <span style="color: var(--text-secondary); font-size: 14px;" id="task-collaborators-placeholder">Cliquez pour sélectionner des collaborateurs...</span>
+                        </div>
+                        <div class="collaborators-dropdown" id="task-collaborators-dropdown" style="display: none;"></div>
+                    </div>
+                </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                     <div class="form-group">
                         <label class="form-label">Statut</label>
@@ -1264,6 +1516,15 @@
                     <label class="form-label">Description</label>
                     <textarea class="form-textarea" name="description" placeholder="Décrivez votre événement..."></textarea>
                 </div>
+                <div class="form-group">
+                    <label class="form-label">Inviter des collaborateurs</label>
+                    <div class="collaborators-selector" id="event-collaborators-selector">
+                        <div class="selected-collaborators" id="event-selected-collaborators">
+                            <span style="color: var(--text-secondary); font-size: 14px;" id="event-collaborators-placeholder">Cliquez pour inviter des collaborateurs...</span>
+                        </div>
+                        <div class="collaborators-dropdown" id="event-collaborators-dropdown" style="display: none;"></div>
+                    </div>
+                </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                     <div class="form-group">
                         <label class="form-label">Date *</label>
@@ -1284,1583 +1545,1834 @@
 
     <!-- Collaborator Modal -->
     <div class="modal" id="collaborator-modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2 class="modal-title">👤 Nouveau Membre</h2>
-            <button class="close-btn" onclick="App.closeModal('collaborator-modal')">&times;</button>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">👤 Nouveau Membre</h2>
+                <button class="close-btn" onclick="App.closeModal('collaborator-modal')">&times;</button>
+            </div>
+            <form id="collaborator-form">
+                <div class="form-group">
+                    <label class="form-label">Nom *</label>
+                    <input type="text" class="form-input" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Rôle</label>
+                    <input type="text" class="form-input" name="role" placeholder="Ex: Développeur, Designer...">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email *</label>
+                    <input type="email" class="form-input" name="email" required>
+                    <p style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">
+                        📧 L'email sera utilisé pour les notifications d'assignation
+                    </p>
+                </div>
+                <!-- Nouveau champ pour l'emoji -->
+                <div class="form-group">
+                    <label class="form-label">Emoji</label>
+                    <div class="emoji-selector">
+                        <input type="hidden" id="selected-emoji" name="emoji" value="👤">
+                        <div class="emoji-preview" id="emoji-preview">👤</div>
+                        <div class="emoji-grid" id="emoji-grid">
+                            <!-- Les emojis seront injectés ici par JavaScript -->
+                        </div>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 32px;">
+                    <button type="button" class="btn btn-secondary" onclick="App.closeModal('collaborator-modal')">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Ajouter à l'Équipe</button>
+                </div>
+            </form>
         </div>
-        <form id="collaborator-form">
-            <div class="form-group">
-                <label class="form-label">Nom *</label>
-                <input type="text" class="form-input" name="name" required>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Rôle</label>
-                <input type="text" class="form-input" name="role" placeholder="Ex: Développeur, Designer...">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Email</label>
-                <input type="email" class="form-input" name="email">
-            </div>
-            <!-- Nouveau champ pour l'emoji -->
-            <div class="form-group">
-                <label class="form-label">Emoji</label>
-                <div class="emoji-selector">
-                    <input type="hidden" id="selected-emoji" name="emoji" value="👤">
-                    <div class="emoji-preview" id="emoji-preview">👤</div>
-                    <div class="emoji-grid" id="emoji-grid">
-                        <!-- Les emojis seront injectés ici par JavaScript -->
-                    </div>
-                </div>
-            </div>
-            <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 32px;">
-                <button type="button" class="btn btn-secondary" onclick="App.closeModal('collaborator-modal')">Annuler</button>
-                <button type="submit" class="btn btn-primary">Ajouter à l'Équipe</button>
-            </div>
-        </form>
     </div>
-</div>
-   <script>
-    // ========================================
-    // APPLICATION WORKSPACE - VERSION 2.0
-    // ========================================
 
-    const App = {
-        // Configuration
-        config: {
-            serverUrl: 'https://your-app-name.onrender.com',
-            currentUserId: 1,
-            autoSave: true,
-            debug: true
-        },
-
-        // État de l'application
-        state: {
-            tasks: [],
-            events: [],
-            collaborators: [],
-            notifications: [],
-            currentDate: new Date(),
-            editingTaskId: null,
-            editingEventId: null,
-            editingCollaboratorId: null,
-            timelineFilter: 'all',
-            notificationFilter: 'all',
-            isConnected: false
-        },
-
-        // Liste d'emojis disponibles pour les collaborateurs
-        emojiList: [
-            '👨‍💻', '👩‍💻', '👨‍🎨', '👩‍🎨', '👨‍💼', '👩‍💼',
-            '🧑‍💻', '🧑‍🎨', '🧑‍💼', '👨‍🔬', '👩‍🔬', '🧑‍🔬',
-            '👨‍🏫', '👩‍🏫', '🧑‍🏫', '👨‍⚕️', '👩‍⚕️', '🧑‍⚕️',
-            '👨‍🔧', '👩‍🔧', '🧑‍🔧', '👨‍🍳', '👩‍🍳', '🧑‍🍳',
-            '🦸‍♂️', '🦸‍♀️', '🧙‍♂️', '🧙‍♀️', '🧚‍♂️', '🧚‍♀️',
-            '👨‍🚀', '👩‍🚀', '🧑‍🚀', '👨‍✈️', '👩‍✈️', '🧑‍✈️',
-            '👨‍🚒', '👩‍🚒', '🧑‍🚒', '🕵️‍♂️', '🕵️‍♀️', '🧑‍🦰',
-            '👨‍🦱', '👩‍🦱', '🧑‍🦱', '👨‍🦳', '👩‍🦳', '🧑‍🦳'
-        ],
-
+    <script>
         // ========================================
-        // INITIALISATION
+        // APPLICATION WORKSPACE - VERSION 3.0 avec Email
         // ========================================
 
-        init() {
-            console.log('🚀 Initialisation de WorkSpace...');
-            
-            this.loadConfig();
-            this.addSampleData();
-            this.setupEventListeners();
-            this.initializeNavigation();
-            this.initializeCalendar();
-            this.checkConnection();
-            this.updateAllViews();
-            this.startPeriodicSync();
-            this.initEmojiSelector();
-            
-            this.showStatus('✅ WorkSpace initialisé avec succès!', 'success');
-            console.log('✅ WorkSpace prêt!');
-        },
-
-        initEmojiSelector() {
-            const emojiGrid = document.getElementById('emoji-grid');
-            const emojiPreview = document.getElementById('emoji-preview');
-            const emojiInput = document.getElementById('selected-emoji');
-
-            // Remplir la grille d'emojis
-            emojiGrid.innerHTML = this.emojiList.map(emoji => `
-                <div class="emoji-option" data-emoji="${emoji}">${emoji}</div>
-            `).join('');
-
-            // Gérer le clic sur l'aperçu
-            emojiPreview.addEventListener('click', (e) => {
-                e.stopPropagation();
-                emojiGrid.classList.toggle('show');
-            });
-
-            // Gérer le clic sur un emoji
-            emojiGrid.addEventListener('click', (e) => {
-                if (e.target.classList.contains('emoji-option')) {
-                    const emoji = e.target.dataset.emoji;
-                    emojiPreview.textContent = emoji;
-                    emojiInput.value = emoji;
-                    emojiGrid.classList.remove('show');
+        const App = {
+            // Configuration
+            config: {
+                serverUrl: 'https://your-app-name.onrender.com',
+                currentUserId: 1,
+                autoSave: true,
+                debug: true,
+                emailNotifications: {
+                    enabled: false,
+                    taskAssigned: true,
+                    eventAssigned: true,
+                    taskUpdated: false
                 }
-            });
+            },
 
-            // Fermer quand on clique ailleurs
-            document.addEventListener('click', () => {
-                emojiGrid.classList.remove('show');
-            });
-        },
-
-        loadConfig() {
-            // Charger la configuration depuis le localStorage
-            const savedUrl = localStorage.getItem('workspace-server-url');
-            const savedUser = localStorage.getItem('workspace-current-user');
-            
-            if (savedUrl) {
-                this.config.serverUrl = savedUrl;
-                const input = document.getElementById('server-url-input');
-                if (input) input.value = savedUrl;
-            }
-            
-            if (savedUser) {
-                this.config.currentUserId = parseInt(savedUser);
-            }
-        },
-
-        addSampleData() {
-            // Collaborateurs d'exemple
-            this.state.collaborators = [
-                {
-                    id: 1,
-                    name: 'Marie Dubois',
-                    role: 'Chef de Projet',
-                    email: 'marie.dubois@company.com',
-                    emoji: '👩‍💼',
-                    createdAt: new Date()
-                },
-                {
-                    id: 2,
-                    name: 'Pierre Martin',
-                    role: 'Développeur Full-Stack',
-                    email: 'pierre.martin@company.com',
-                    emoji: '👨‍💻',
-                    createdAt: new Date()
-                },
-                {
-                    id: 3,
-                    name: 'Sophie Leroy',
-                    role: 'UI/UX Designer',
-                    email: 'sophie.leroy@company.com',
-                    emoji: '👩‍🎨',
-                    createdAt: new Date()
-                },
-                {
-                    id: 4,
-                    name: 'Alex Chen',
-                    role: 'DevOps Engineer',
-                    email: 'alex.chen@company.com',
-                    emoji: '🧑‍💻',
-                    createdAt: new Date()
-                }
-            ];
-
-            // Tâches d'exemple
-            this.state.tasks = [
-                {
-                    id: 1,
-                    title: 'Migration vers Render.com',
-                    description: 'Migrer l\'infrastructure de Heroku vers Render.com pour de meilleures performances',
-                    status: 'progress',
-                    priority: 'high',
-                    startDate: '2025-06-18',
-                    dueDate: '2025-06-25',
-                    color: '#ef4444',
-                    collaborators: [2, 4],
-                    createdAt: new Date()
-                },
-                {
-                    id: 2,
-                    title: 'Design System v2.0',
-                    description: 'Création du nouveau système de design avec composants réutilisables',
-                    status: 'review',
-                    priority: 'medium',
-                    startDate: '2025-06-15',
-                    dueDate: '2025-06-30',
-                    color: '#8b5cf6',
-                    collaborators: [3],
-                    createdAt: new Date()
-                },
-                {
-                    id: 3,
-                    title: 'API REST Documentation',
-                    description: 'Documenter toutes les routes API avec Swagger/OpenAPI',
-                    status: 'todo',
-                    priority: 'medium',
-                    startDate: '2025-06-20',
-                    dueDate: '2025-06-28',
-                    color: '#10b981',
-                    collaborators: [2],
-                    createdAt: new Date()
-                },
-                {
-                    id: 4,
-                    title: 'Tests E2E avec Playwright',
-                    description: 'Mettre en place les tests end-to-end pour assurer la qualité',
-                    status: 'done',
-                    priority: 'high',
-                    startDate: '2025-06-10',
-                    dueDate: '2025-06-17',
-                    color: '#06b6d4',
-                    collaborators: [1, 2],
-                    createdAt: new Date()
-                }
-            ];
-
-            // Événements d'exemple
-            this.state.events = [
-                {
-                    id: 1,
-                    title: 'Demo Client - V2.0',
-                    description: 'Présentation de la nouvelle version aux clients',
-                    date: '2025-06-22',
-                    time: '14:00',
-                    createdAt: new Date()
-                },
-                {
-                    id: 2,
-                    title: 'Formation Render.com',
-                    description: 'Session de formation sur le déploiement Render.com',
-                    date: '2025-06-25',
-                    time: '10:00',
-                    createdAt: new Date()
-                }
-            ];
-
-            // Notifications d'exemple
-            this.state.notifications = [
-                {
-                    id: 1,
-                    collaboratorId: 1,
-                    type: 'task-assigned',
-                    title: 'Nouvelle tâche assignée',
-                    description: 'Vous avez été assigné(e) à "Migration vers Render.com"',
-                    taskId: 1,
-                    isRead: false,
-                    createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000)
-                },
-                {
-                    id: 2,
-                    collaboratorId: 2,
-                    type: 'task-updated',
-                    title: 'Tâche mise à jour',
-                    description: 'Le statut de "API REST Documentation" a été modifié',
-                    taskId: 3,
-                    isRead: false,
-                    createdAt: new Date(Date.now() - 4 * 60 * 60 * 1000)
-                }
-            ];
-        },
-
-        setupEventListeners() {
-            // Fermeture des modales en cliquant à l'extérieur
-            document.addEventListener('click', (e) => {
-                if (e.target.classList.contains('modal')) {
-                    e.target.classList.remove('show');
-                }
-            });
-
-            // Gestion des formulaires
-            this.setupFormHandlers();
-
-            // Filtres timeline
-            document.querySelectorAll('.timeline-filters .filter-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    document.querySelectorAll('.timeline-filters .filter-btn').forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    this.state.timelineFilter = btn.dataset.filter;
-                    this.renderTimeline();
-                });
-            });
-
-            // Filtres notifications
-            document.querySelectorAll('.notifications-container .filter-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    document.querySelectorAll('.notifications-container .filter-btn').forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    this.state.notificationFilter = btn.dataset.filter;
-                    this.renderNotifications();
-                });
-            });
-        },
-
-        setupFormHandlers() {
-            // Formulaire des tâches
-            document.getElementById('task-form').addEventListener('submit', (e) => {
-                e.preventDefault();
-                this.handleTaskSubmit(e.target);
-            });
-
-            // Formulaire des événements
-            document.getElementById('event-form').addEventListener('submit', (e) => {
-                e.preventDefault();
-                this.handleEventSubmit(e.target);
-            });
-
-            // Formulaire des collaborateurs
-            document.getElementById('collaborator-form').addEventListener('submit', (e) => {
-                e.preventDefault();
-                this.handleCollaboratorSubmit(e.target);
-            });
-        },
-
-        initializeNavigation() {
-            const navLinks = document.querySelectorAll('.nav-link');
-            const views = document.querySelectorAll('.view-content');
-
-            navLinks.forEach(link => {
-                link.addEventListener('click', () => {
-                    const targetView = link.dataset.view;
-                    
-                    // Mise à jour des liens actifs
-                    navLinks.forEach(l => l.classList.remove('active'));
-                    link.classList.add('active');
-                    
-                    // Mise à jour des vues
-                    views.forEach(view => view.classList.remove('active'));
-                    document.getElementById(targetView).classList.add('active');
-                    
-                    // Rendu spécifique selon la vue
-                    this.handleViewChange(targetView);
-                });
-            });
-        },
-
-        handleViewChange(viewName) {
-            switch(viewName) {
-                case 'dashboard':
-                    this.updateDashboard();
-                    break;
-                case 'kanban':
-                    this.renderKanban();
-                    break;
-                case 'timeline':
-                    this.renderTimeline();
-                    break;
-                case 'calendar':
-                    this.renderCalendar();
-                    break;
-                case 'events':
-                    this.renderEvents();
-                    break;
-                case 'collaborators':
-                    this.renderCollaborators();
-                    break;
-                case 'notifications':
-                    this.renderNotifications();
-                    break;
-                case 'settings':
-                    this.updateCurrentUserSelect();
-                    break;
-            }
-        },
-
-        async makeApiRequest(endpoint, method = 'GET', data = null) {
-            const url = this.config.serverUrl + endpoint;
-            const options = {
-                method,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                },
-                mode: 'cors',
-                credentials: 'omit'
-            };
-
-            if (data) {
-                options.body = JSON.stringify(data);
-            }
-
-            if (this.config.debug) {
-                console.log(`🔄 API ${method} ${endpoint}`, data || '');
-            }
-
-            try {
-                const response = await fetch(url, options);
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-
-                const contentType = response.headers.get('content-type');
-                const result = contentType?.includes('application/json') 
-                    ? await response.json() 
-                    : await response.text();
-
-                this.updateConnectionStatus(true);
-                
-                if (this.config.debug) {
-                    console.log(`✅ API Response:`, result);
-                }
-                
-                return result;
-            } catch (error) {
-                console.error(`❌ API Error ${method} ${endpoint}:`, error);
-                this.updateConnectionStatus(false);
-                
-                if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
-                    this.showStatus('❌ Erreur CORS - Vérifiez la configuration du serveur', 'error');
-                } else if (error.message.includes('CORS')) {
-                    this.showStatus('❌ Problème CORS - Le serveur doit autoriser votre domaine', 'error');
-                } else {
-                    this.showStatus(`❌ Erreur serveur: ${error.message}`, 'error');
-                }
-                
-                return null;
-            }
-        },
-
-        async checkConnection() {
-            const result = await this.makeApiRequest('/api/ping');
-            if (result) {
-                this.showStatus('🟢 Connecté au serveur', 'success');
-                this.loadDataFromServer();
-            } else {
-                this.showStatus('🔴 Serveur non disponible - Mode hors ligne', 'error');
-            }
-        },
-
-        async loadDataFromServer() {
-            const data = await this.makeApiRequest('/api/data');
-            if (data) {
-                this.state.tasks = data.tasks || this.state.tasks;
-                this.state.events = data.events || this.state.events;
-                this.state.collaborators = data.collaborators || this.state.collaborators;
-                this.state.notifications = data.notifications || this.state.notifications;
-                
-                this.updateAllViews();
-                this.showStatus('📥 Données synchronisées', 'success');
-            }
-        },
-
-        async saveDataToServer() {
-            if (!this.config.autoSave) return;
-            
-            const data = {
-                tasks: this.state.tasks,
-                events: this.state.events,
-                collaborators: this.state.collaborators,
-                notifications: this.state.notifications
-            };
-            
-            const result = await this.makeApiRequest('/api/data', 'POST', data);
-            if (result) {
-                if (this.config.debug) {
-                    console.log('💾 Données sauvegardées');
-                }
-            }
-        },
-
-        updateConnectionStatus(isConnected) {
-            this.state.isConnected = isConnected;
-            const statusEl = document.getElementById('connection-status');
-            if (statusEl) {
-                statusEl.className = `connection-status ${isConnected ? 'connected' : 'disconnected'}`;
-                statusEl.innerHTML = `
-                    <div class="connection-dot"></div>
-                    <span>${isConnected ? 'Connecté' : 'Déconnecté'}</span>
-                `;
-            }
-        },
-
-        startPeriodicSync() {
-            // Synchronisation automatique toutes les 30 secondes
-            setInterval(() => {
-                if (this.state.isConnected) {
-                    this.loadDataFromServer();
-                }
-            }, 30000);
-        },
-
-        showTaskModal(taskId = null) {
-            this.state.editingTaskId = taskId;
-            const modal = document.getElementById('task-modal');
-            const form = document.getElementById('task-form');
-            const title = modal.querySelector('.modal-title');
-            
-            if (taskId) {
-                const task = this.state.tasks.find(t => t.id === taskId);
-                title.textContent = '✏️ Modifier la Tâche';
-                form.title.value = task.title;
-                form.description.value = task.description;
-                form.status.value = task.status;
-                form.priority.value = task.priority;
-                form.startDate.value = task.startDate || '';
-                form.dueDate.value = task.dueDate || '';
-            } else {
-                title.textContent = '✨ Nouvelle Tâche';
-                form.reset();
-            }
-            
-            modal.classList.add('show');
-        },
-
-        showEventModal(eventId = null) {
-            this.state.editingEventId = eventId;
-            const modal = document.getElementById('event-modal');
-            const form = document.getElementById('event-form');
-            const title = modal.querySelector('.modal-title');
-            
-            if (eventId) {
-                const event = this.state.events.find(e => e.id === eventId);
-                title.textContent = '✏️ Modifier l\'Événement';
-                form.title.value = event.title;
-                form.description.value = event.description;
-                form.date.value = event.date;
-                form.time.value = event.time || '';
-            } else {
-                title.textContent = '🎯 Nouvel Événement';
-                form.reset();
-            }
-            
-            modal.classList.add('show');
-        },
-
-        showCollaboratorModal(collaboratorId = null) {
-            this.state.editingCollaboratorId = collaboratorId;
-            const modal = document.getElementById('collaborator-modal');
-            const form = document.getElementById('collaborator-form');
-            const title = modal.querySelector('.modal-title');
-            
-            if (collaboratorId) {
-                const collaborator = this.state.collaborators.find(c => c.id === collaboratorId);
-                title.textContent = '✏️ Modifier le Membre';
-                form.name.value = collaborator.name;
-                form.role.value = collaborator.role;
-                form.email.value = collaborator.email;
-                document.getElementById('selected-emoji').value = collaborator.emoji;
-                document.getElementById('emoji-preview').textContent = collaborator.emoji;
-            } else {
-                title.textContent = '👤 Nouveau Membre';
-                form.reset();
-                document.getElementById('selected-emoji').value = '👤';
-                document.getElementById('emoji-preview').textContent = '👤';
-            }
-            
-            modal.classList.add('show');
-        },
-
-        closeModal(modalId) {
-            document.getElementById(modalId).classList.remove('show');
-            this.state.editingTaskId = null;
-            this.state.editingEventId = null;
-            this.state.editingCollaboratorId = null;
-        },
-
-        async handleTaskSubmit(form) {
-            const formData = new FormData(form);
-            const submitBtn = form.querySelector('button[type="submit"]');
-            const loading = submitBtn.querySelector('.loading');
-            
-            // Animation de chargement
-            loading.style.display = 'inline-block';
-            submitBtn.disabled = true;
-            
-            const task = {
-                id: this.state.editingTaskId || Date.now(),
-                title: formData.get('title'),
-                description: formData.get('description'),
-                status: formData.get('status'),
-                priority: formData.get('priority'),
-                startDate: formData.get('startDate'),
-                dueDate: formData.get('dueDate'),
-                color: this.getColorForPriority(formData.get('priority')),
+            // État de l'application
+            state: {
+                tasks: [],
+                events: [],
                 collaborators: [],
-                createdAt: this.state.editingTaskId 
-                    ? this.state.tasks.find(t => t.id === this.state.editingTaskId).createdAt 
-                    : new Date()
-            };
+                notifications: [],
+                currentDate: new Date(),
+                editingTaskId: null,
+                editingEventId: null,
+                editingCollaboratorId: null,
+                timelineFilter: 'all',
+                notificationFilter: 'all',
+                isConnected: false,
+                selectedTaskCollaborators: [],
+                selectedEventCollaborators: []
+            },
 
-            if (this.state.editingTaskId) {
-                const index = this.state.tasks.findIndex(t => t.id === this.state.editingTaskId);
-                this.state.tasks[index] = task;
-                this.showStatus('✅ Tâche mise à jour', 'success');
-            } else {
-                this.state.tasks.push(task);
-                this.showStatus('✅ Nouvelle tâche créée', 'success');
-            }
+            // Liste d'emojis disponibles pour les collaborateurs
+            emojiList: [
+                '👨‍💻', '👩‍💻', '👨‍🎨', '👩‍🎨', '👨‍💼', '👩‍💼',
+                '🧑‍💻', '🧑‍🎨', '🧑‍💼', '👨‍🔬', '👩‍🔬', '🧑‍🔬',
+                '👨‍🏫', '👩‍🏫', '🧑‍🏫', '👨‍⚕️', '👩‍⚕️', '🧑‍⚕️',
+                '👨‍🔧', '👩‍🔧', '🧑‍🔧', '👨‍🍳', '👩‍🍳', '🧑‍🍳',
+                '🦸‍♂️', '🦸‍♀️', '🧙‍♂️', '🧙‍♀️', '🧚‍♂️', '🧚‍♀️',
+                '👨‍🚀', '👩‍🚀', '🧑‍🚀', '👨‍✈️', '👩‍✈️', '🧑‍✈️',
+                '👨‍🚒', '👩‍🚒', '🧑‍🚒', '🕵️‍♂️', '🕵️‍♀️', '🧑‍🦰',
+                '👨‍🦱', '👩‍🦱', '🧑‍🦱', '👨‍🦳', '👩‍🦳', '🧑‍🦳'
+            ],
 
-            await this.saveDataToServer();
-            this.updateAllViews();
-            this.closeModal('task-modal');
-            
-            // Réinitialiser le bouton
-            loading.style.display = 'none';
-            submitBtn.disabled = false;
-        },
+            // ========================================
+            // INITIALISATION
+            // ========================================
 
-        async handleEventSubmit(form) {
-            const formData = new FormData(form);
-            
-            const event = {
-                id: this.state.editingEventId || Date.now(),
-                title: formData.get('title'),
-                description: formData.get('description'),
-                date: formData.get('date'),
-                time: formData.get('time'),
-                createdAt: this.state.editingEventId 
-                    ? this.state.events.find(e => e.id === this.state.editingEventId).createdAt 
-                    : new Date()
-            };
+            init() {
+                console.log('🚀 Initialisation de WorkSpace v3.0...');
+                
+                this.loadConfig();
+                this.addSampleData();
+                this.setupEventListeners();
+                this.initializeNavigation();
+                this.initializeCalendar();
+                this.checkConnection();
+                this.updateAllViews();
+                this.startPeriodicSync();
+                this.initEmojiSelector();
+                this.initCollaboratorsSelectors();
+                this.updateEmailStatus();
+                
+                this.showStatus('✅ WorkSpace v3.0 initialisé avec succès!', 'success');
+                console.log('✅ WorkSpace v3.0 prêt!');
+            },
 
-            if (this.state.editingEventId) {
-                const index = this.state.events.findIndex(e => e.id === this.state.editingEventId);
-                this.state.events[index] = event;
-                this.showStatus('✅ Événement mis à jour', 'success');
-            } else {
-                this.state.events.push(event);
-                this.showStatus('✅ Nouvel événement créé', 'success');
-            }
+            initEmojiSelector() {
+                const emojiGrid = document.getElementById('emoji-grid');
+                const emojiPreview = document.getElementById('emoji-preview');
+                const emojiInput = document.getElementById('selected-emoji');
 
-            await this.saveDataToServer();
-            this.updateAllViews();
-            this.closeModal('event-modal');
-        },
+                if (!emojiGrid || !emojiPreview || !emojiInput) return;
 
-        async handleCollaboratorSubmit(form) {
-            const formData = new FormData(form);
-            
-            const collaborator = {
-                id: this.state.editingCollaboratorId || Date.now(),
-                name: formData.get('name'),
-                role: formData.get('role'),
-                email: formData.get('email'),
-                emoji: formData.get('emoji') || this.getRandomEmoji(),
-                createdAt: this.state.editingCollaboratorId 
-                    ? this.state.collaborators.find(c => c.id === this.state.editingCollaboratorId).createdAt 
-                    : new Date()
-            };
+                // Remplir la grille d'emojis
+                emojiGrid.innerHTML = this.emojiList.map(emoji => `
+                    <div class="emoji-option" data-emoji="${emoji}">${emoji}</div>
+                `).join('');
 
-            if (this.state.editingCollaboratorId) {
-                const index = this.state.collaborators.findIndex(c => c.id === this.state.editingCollaboratorId);
-                this.state.collaborators[index] = collaborator;
-                this.showStatus('✅ Membre mis à jour', 'success');
-            } else {
-                this.state.collaborators.push(collaborator);
-                this.showStatus('✅ Nouveau membre ajouté', 'success');
-            }
+                // Gérer le clic sur l'aperçu
+                emojiPreview.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    emojiGrid.classList.toggle('show');
+                });
 
-            await this.saveDataToServer();
-            this.updateAllViews();
-            this.closeModal('collaborator-modal');
-        },
+                // Gérer le clic sur un emoji
+                emojiGrid.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('emoji-option')) {
+                        const emoji = e.target.dataset.emoji;
+                        emojiPreview.textContent = emoji;
+                        emojiInput.value = emoji;
+                        emojiGrid.classList.remove('show');
+                    }
+                });
 
-        updateAllViews() {
-            this.updateDashboard();
-            this.renderKanban();
-            this.renderTimeline();
-            this.renderCalendar();
-            this.renderEvents();
-            this.renderCollaborators();
-            this.renderNotifications();
-            this.updateNotificationBadge();
-        },
+                // Fermer quand on clique ailleurs
+                document.addEventListener('click', () => {
+                    emojiGrid.classList.remove('show');
+                });
+            },
 
-        updateDashboard() {
-            const totalTasks = this.state.tasks.length;
-            const completedTasks = this.state.tasks.filter(t => t.status === 'done').length;
-            const pendingTasks = this.state.tasks.filter(t => t.status !== 'done').length;
-            const upcomingEvents = this.state.events.filter(e => new Date(e.date) >= new Date()).length;
+            initCollaboratorsSelectors() {
+                this.initCollaboratorSelector('task');
+                this.initCollaboratorSelector('event');
+            },
 
-            document.getElementById('total-tasks').textContent = totalTasks;
-            document.getElementById('completed-tasks').textContent = completedTasks;
-            document.getElementById('pending-tasks').textContent = pendingTasks;
-            document.getElementById('upcoming-events').textContent = upcomingEvents;
+            initCollaboratorSelector(type) {
+                const selector = document.getElementById(`${type}-collaborators-selector`);
+                const selectedContainer = document.getElementById(`${type}-selected-collaborators`);
+                const dropdown = document.getElementById(`${type}-collaborators-dropdown`);
+                const placeholder = document.getElementById(`${type}-collaborators-placeholder`);
 
-            this.renderRecentTasks();
-        },
+                if (!selector || !selectedContainer || !dropdown) return;
 
-        renderRecentTasks() {
-            const container = document.getElementById('recent-tasks');
-            const recentTasks = this.state.tasks.slice(-5).reverse();
-            
-            if (recentTasks.length === 0) {
-                container.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 40px;">Aucune tâche pour le moment</p>';
-                return;
-            }
-            
-            const html = recentTasks.map(task => `
-                <div class="task-card" style="border-left-color: ${task.color}; cursor: pointer;" onclick="App.showTaskModal(${task.id})">
-                    <div class="task-title">${task.title}</div>
-                    <div class="task-meta">
-                        <span class="priority priority-${task.priority}">${this.getPriorityLabel(task.priority)}</span>
-                        <span>${this.getStatusLabel(task.status)}</span>
+                // Gestion du clic sur le sélecteur
+                selector.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    selector.classList.add('focused');
+                    this.showCollaboratorsDropdown(type);
+                });
+
+                // Fermer dropdown en cliquant ailleurs
+                document.addEventListener('click', (e) => {
+                    if (!selector.contains(e.target)) {
+                        selector.classList.remove('focused');
+                        dropdown.style.display = 'none';
+                    }
+                });
+
+                this.renderCollaboratorsDropdown(type);
+            },
+
+            renderCollaboratorsDropdown(type) {
+                const dropdown = document.getElementById(`${type}-collaborators-dropdown`);
+                if (!dropdown) return;
+
+                const html = this.state.collaborators.map(collaborator => `
+                    <div class="collaborator-option" data-id="${collaborator.id}" onclick="App.toggleCollaboratorSelection('${type}', ${collaborator.id})">
+                        <div class="collaborator-avatar">${collaborator.emoji}</div>
+                        <div class="collaborator-info">
+                            <div class="collaborator-name">${collaborator.name}</div>
+                            <div class="collaborator-role">${collaborator.role}</div>
+                        </div>
                     </div>
-                </div>
-            `).join('');
-            
-            container.innerHTML = html;
-        },
+                `).join('');
 
-        renderKanban() {
-            const columns = document.querySelectorAll('.kanban-column');
-            
-            columns.forEach(column => {
-                const status = column.dataset.status;
-                const tasksContainer = column.querySelector('.column-tasks');
-                const countElement = column.querySelector('.task-count');
-                
-                const columnTasks = this.state.tasks.filter(task => task.status === status);
-                countElement.textContent = columnTasks.length;
-                
-                const html = columnTasks.map(task => {
-                    const collaboratorsHtml = task.collaborators?.map(colId => {
-                        const collaborator = this.state.collaborators.find(c => c.id === colId);
-                        return collaborator ? `<span style="margin-right: 4px;">${collaborator.emoji}</span>` : '';
-                    }).join('') || '';
+                dropdown.innerHTML = html;
+            },
+
+            showCollaboratorsDropdown(type) {
+                const dropdown = document.getElementById(`${type}-collaborators-dropdown`);
+                if (!dropdown) return;
+
+                dropdown.style.display = 'block';
+                this.updateCollaboratorOptions(type);
+            },
+
+            toggleCollaboratorSelection(type, collaboratorId) {
+                const selectedArray = type === 'task' ? this.state.selectedTaskCollaborators : this.state.selectedEventCollaborators;
+                const index = selectedArray.indexOf(collaboratorId);
+
+                if (index > -1) {
+                    selectedArray.splice(index, 1);
+                } else {
+                    selectedArray.push(collaboratorId);
+                }
+
+                this.updateSelectedCollaborators(type);
+                this.updateCollaboratorOptions(type);
+            },
+
+            updateSelectedCollaborators(type) {
+                const container = document.getElementById(`${type}-selected-collaborators`);
+                const placeholder = document.getElementById(`${type}-collaborators-placeholder`);
+                const selectedArray = type === 'task' ? this.state.selectedTaskCollaborators : this.state.selectedEventCollaborators;
+
+                if (!container) return;
+
+                if (selectedArray.length === 0) {
+                    container.innerHTML = `<span style="color: var(--text-secondary); font-size: 14px;" id="${type}-collaborators-placeholder">Cliquez pour sélectionner des collaborateurs...</span>`;
+                    return;
+                }
+
+                const html = selectedArray.map(collaboratorId => {
+                    const collaborator = this.state.collaborators.find(c => c.id === collaboratorId);
+                    if (!collaborator) return '';
                     
                     return `
-                        <div class="task-card" data-task-id="${task.id}" style="border-left-color: ${task.color}">
-                            <div class="task-title">${task.title}</div>
-                            <div class="task-meta">
+                        <div class="collaborator-tag">
+                            ${collaborator.emoji} ${collaborator.name}
+                            <button class="remove-btn" onclick="App.toggleCollaboratorSelection('${type}', ${collaboratorId})" type="button">×</button>
+                        </div>
+                    `;
+                }).join('');
+
+                container.innerHTML = html;
+            },
+
+            updateCollaboratorOptions(type) {
+                const selectedArray = type === 'task' ? this.state.selectedTaskCollaborators : this.state.selectedEventCollaborators;
+                const options = document.querySelectorAll(`#${type}-collaborators-dropdown .collaborator-option`);
+
+                options.forEach(option => {
+                    const collaboratorId = parseInt(option.dataset.id);
+                    option.classList.toggle('selected', selectedArray.includes(collaboratorId));
+                });
+            },
+
+            clearCollaboratorSelection(type) {
+                if (type === 'task') {
+                    this.state.selectedTaskCollaborators = [];
+                } else {
+                    this.state.selectedEventCollaborators = [];
+                }
+                this.updateSelectedCollaborators(type);
+                this.updateCollaboratorOptions(type);
+            },
+
+            loadConfig() {
+                // Charger la configuration depuis le localStorage
+                const savedUrl = localStorage.getItem('workspace-server-url');
+                const savedUser = localStorage.getItem('workspace-current-user');
+                const savedEmailConfig = localStorage.getItem('workspace-email-config');
+                
+                if (savedUrl) {
+                    this.config.serverUrl = savedUrl;
+                    const input = document.getElementById('server-url-input');
+                    if (input) input.value = savedUrl;
+                }
+                
+                if (savedUser) {
+                    this.config.currentUserId = parseInt(savedUser);
+                }
+
+                if (savedEmailConfig) {
+                    try {
+                        this.config.emailNotifications = { ...this.config.emailNotifications, ...JSON.parse(savedEmailConfig) };
+                    } catch (e) {
+                        console.warn('Erreur lors du chargement de la config email:', e);
+                    }
+                }
+            },
+
+            addSampleData() {
+                // Collaborateurs d'exemple
+                this.state.collaborators = [
+                    {
+                        id: 1,
+                        name: 'Marie Dubois',
+                        role: 'Chef de Projet',
+                        email: 'marie.dubois@company.com',
+                        emoji: '👩‍💼',
+                        createdAt: new Date()
+                    },
+                    {
+                        id: 2,
+                        name: 'Pierre Martin',
+                        role: 'Développeur Full-Stack',
+                        email: 'pierre.martin@company.com',
+                        emoji: '👨‍💻',
+                        createdAt: new Date()
+                    },
+                    {
+                        id: 3,
+                        name: 'Sophie Leroy',
+                        role: 'UI/UX Designer',
+                        email: 'sophie.leroy@company.com',
+                        emoji: '👩‍🎨',
+                        createdAt: new Date()
+                    },
+                    {
+                        id: 4,
+                        name: 'Alex Chen',
+                        role: 'DevOps Engineer',
+                        email: 'alex.chen@company.com',
+                        emoji: '🧑‍💻',
+                        createdAt: new Date()
+                    }
+                ];
+
+                // Tâches d'exemple avec assignations
+                this.state.tasks = [
+                    {
+                        id: 1,
+                        title: 'Migration vers Render.com',
+                        description: 'Migrer l\'infrastructure de Heroku vers Render.com pour de meilleures performances',
+                        status: 'progress',
+                        priority: 'high',
+                        startDate: '2025-06-28',
+                        dueDate: '2025-07-05',
+                        color: '#ef4444',
+                        collaborators: [2, 4],
+                        createdAt: new Date()
+                    },
+                    {
+                        id: 2,
+                        title: 'Design System v2.0',
+                        description: 'Création du nouveau système de design avec composants réutilisables',
+                        status: 'review',
+                        priority: 'medium',
+                        startDate: '2025-06-25',
+                        dueDate: '2025-07-10',
+                        color: '#8b5cf6',
+                        collaborators: [3],
+                        createdAt: new Date()
+                    },
+                    {
+                        id: 3,
+                        title: 'API REST Documentation',
+                        description: 'Documenter toutes les routes API avec Swagger/OpenAPI',
+                        status: 'todo',
+                        priority: 'medium',
+                        startDate: '2025-07-01',
+                        dueDate: '2025-07-08',
+                        color: '#10b981',
+                        collaborators: [2],
+                        createdAt: new Date()
+                    },
+                    {
+                        id: 4,
+                        title: 'Tests E2E avec Playwright',
+                        description: 'Mettre en place les tests end-to-end pour assurer la qualité',
+                        status: 'done',
+                        priority: 'high',
+                        startDate: '2025-06-20',
+                        dueDate: '2025-06-27',
+                        color: '#06b6d4',
+                        collaborators: [1, 2],
+                        createdAt: new Date()
+                    }
+                ];
+
+                // Événements d'exemple avec invités
+                this.state.events = [
+                    {
+                        id: 1,
+                        title: 'Demo Client - V2.0',
+                        description: 'Présentation de la nouvelle version aux clients',
+                        date: '2025-07-02',
+                        time: '14:00',
+                        collaborators: [1, 2, 3],
+                        createdAt: new Date()
+                    },
+                    {
+                        id: 2,
+                        title: 'Formation Render.com',
+                        description: 'Session de formation sur le déploiement Render.com',
+                        date: '2025-07-05',
+                        time: '10:00',
+                        collaborators: [2, 4],
+                        createdAt: new Date()
+                    }
+                ];
+
+                // Notifications d'exemple
+                this.state.notifications = [
+                    {
+                        id: 1,
+                        collaboratorId: 2,
+                        type: 'task-assigned',
+                        title: 'Nouvelle tâche assignée',
+                        description: 'Vous avez été assigné(e) à "Migration vers Render.com"',
+                        taskId: 1,
+                        isRead: false,
+                        createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000)
+                    },
+                    {
+                        id: 2,
+                        collaboratorId: 3,
+                        type: 'event-assigned',
+                        title: 'Nouvel événement',
+                        description: 'Vous êtes invité(e) à "Demo Client - V2.0"',
+                        eventId: 1,
+                        isRead: false,
+                        createdAt: new Date(Date.now() - 1 * 60 * 60 * 1000)
+                    }
+                ];
+            },
+
+            setupEventListeners() {
+                // Fermeture des modales en cliquant à l'extérieur
+                document.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('modal')) {
+                        e.target.classList.remove('show');
+                    }
+                });
+
+                // Gestion des formulaires
+                this.setupFormHandlers();
+
+                // Filtres timeline
+                document.querySelectorAll('.timeline-filters .filter-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        document.querySelectorAll('.timeline-filters .filter-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        this.state.timelineFilter = btn.dataset.filter;
+                        this.renderTimeline();
+                    });
+                });
+
+                // Filtres notifications
+                document.querySelectorAll('.notifications-container .filter-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        document.querySelectorAll('.notifications-container .filter-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        this.state.notificationFilter = btn.dataset.filter;
+                        this.renderNotifications();
+                    });
+                });
+            },
+
+            setupFormHandlers() {
+                // Formulaire des tâches
+                document.getElementById('task-form').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.handleTaskSubmit(e.target);
+                });
+
+                // Formulaire des événements
+                document.getElementById('event-form').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.handleEventSubmit(e.target);
+                });
+
+                // Formulaire des collaborateurs
+                document.getElementById('collaborator-form').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.handleCollaboratorSubmit(e.target);
+                });
+            },
+
+            initializeNavigation() {
+                const navLinks = document.querySelectorAll('.nav-link');
+                const views = document.querySelectorAll('.view-content');
+
+                navLinks.forEach(link => {
+                    link.addEventListener('click', () => {
+                        const targetView = link.dataset.view;
+                        
+                        // Mise à jour des liens actifs
+                        navLinks.forEach(l => l.classList.remove('active'));
+                        link.classList.add('active');
+                        
+                        // Mise à jour des vues
+                        views.forEach(view => view.classList.remove('active'));
+                        document.getElementById(targetView).classList.add('active');
+                        
+                        // Rendu spécifique selon la vue
+                        this.handleViewChange(targetView);
+                    });
+                });
+            },
+
+            handleViewChange(viewName) {
+                switch(viewName) {
+                    case 'dashboard':
+                        this.updateDashboard();
+                        break;
+                    case 'kanban':
+                        this.renderKanban();
+                        break;
+                    case 'timeline':
+                        this.renderTimeline();
+                        break;
+                    case 'calendar':
+                        this.renderCalendar();
+                        break;
+                    case 'events':
+                        this.renderEvents();
+                        break;
+                    case 'collaborators':
+                        this.renderCollaborators();
+                        break;
+                    case 'notifications':
+                        this.renderNotifications();
+                        break;
+                    case 'settings':
+                        this.updateCurrentUserSelect();
+                        this.updateEmailSettings();
+                        break;
+                }
+            },
+
+            // ========================================
+            // FONCTIONS EMAIL
+            // ========================================
+
+            updateEmailStatus() {
+                const statusEl = document.getElementById('email-status');
+                const checkbox = document.getElementById('email-notifications-enabled');
+                
+                if (statusEl && checkbox) {
+                    checkbox.checked = this.config.emailNotifications.enabled;
+                    
+                    if (this.config.emailNotifications.enabled) {
+                        statusEl.innerHTML = '<span>🟢</span><span>Notifications email activées</span>';
+                        statusEl.className = 'email-status enabled';
+                    } else {
+                        statusEl.innerHTML = '<span>🔴</span><span>Notifications email désactivées</span>';
+                        statusEl.className = 'email-status disabled';
+                    }
+                }
+
+                // Mettre à jour les autres checkboxes
+                const taskCheckbox = document.getElementById('email-task-assigned');
+                const eventCheckbox = document.getElementById('email-event-assigned');
+                const updateCheckbox = document.getElementById('email-task-updated');
+
+                if (taskCheckbox) taskCheckbox.checked = this.config.emailNotifications.taskAssigned;
+                if (eventCheckbox) eventCheckbox.checked = this.config.emailNotifications.eventAssigned;
+                if (updateCheckbox) updateCheckbox.checked = this.config.emailNotifications.taskUpdated;
+            },
+
+            toggleEmailNotifications(enabled) {
+                this.config.emailNotifications.enabled = enabled;
+                this.saveEmailConfig();
+                this.updateEmailStatus();
+                
+                if (enabled) {
+                    this.showStatus('📧 Notifications email activées', 'success');
+                } else {
+                    this.showStatus('📧 Notifications email désactivées', 'info');
+                }
+            },
+
+            updateEmailSettings() {
+                const taskCheckbox = document.getElementById('email-task-assigned');
+                const eventCheckbox = document.getElementById('email-event-assigned');
+                const updateCheckbox = document.getElementById('email-task-updated');
+
+                if (taskCheckbox) this.config.emailNotifications.taskAssigned = taskCheckbox.checked;
+                if (eventCheckbox) this.config.emailNotifications.eventAssigned = eventCheckbox.checked;
+                if (updateCheckbox) this.config.emailNotifications.taskUpdated = updateCheckbox.checked;
+
+                this.saveEmailConfig();
+            },
+
+            saveEmailConfig() {
+                localStorage.setItem('workspace-email-config', JSON.stringify(this.config.emailNotifications));
+            },
+
+            async sendEmailNotification(type, data) {
+                if (!this.config.emailNotifications.enabled) {
+                    console.log('📧 Notifications email désactivées');
+                    return;
+                }
+
+                if (!this.config.emailNotifications[type]) {
+                    console.log(`📧 Notification ${type} désactivée`);
+                    return;
+                }
+
+                try {
+                    const response = await this.makeApiRequest('/api/send-email', 'POST', {
+                        type: type,
+                        data: data
+                    });
+
+                    if (response && response.success) {
+                        console.log('📧 Email envoyé avec succès:', data);
+                    } else {
+                        console.error('❌ Erreur envoi email:', response);
+                    }
+                } catch (error) {
+                    console.error('❌ Erreur lors de l\'envoi email:', error);
+                }
+            },
+
+            async testEmailConfiguration() {
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = '📧 Envoi en cours...';
+                btn.disabled = true;
+
+                try {
+                    const currentUser = this.state.collaborators.find(c => c.id === this.config.currentUserId);
+                    if (!currentUser) {
+                        this.showStatus('⚠️ Sélectionnez d\'abord un utilisateur actuel', 'error');
+                        return;
+                    }
+
+                    const testData = {
+                        to: currentUser.email,
+                        subject: 'Test - Notifications WorkSpace',
+                        collaborator: currentUser,
+                        title: 'Test de configuration email',
+                        description: 'Ceci est un email de test pour vérifier la configuration de votre serveur de notifications.'
+                    };
+
+                    const response = await this.makeApiRequest('/api/test-email', 'POST', testData);
+                    
+                    if (response && response.success) {
+                        this.showStatus('📧 Email de test envoyé avec succès!', 'success');
+                    } else {
+                        this.showStatus('❌ Erreur lors du test email - Vérifiez la configuration serveur', 'error');
+                    }
+                } catch (error) {
+                    this.showStatus('❌ Erreur de connexion au serveur email', 'error');
+                    console.error('Test email error:', error);
+                } finally {
+                    btn.textContent = originalText;
+                    btn.disabled = false;
+                }
+            },
+
+            showEmailSettings() {
+                alert(`
+📧 Configuration Serveur Email Render.com:
+
+1. Variables d'environnement à définir sur Render.com:
+   - EMAIL_HOST: smtp.gmail.com (ou votre SMTP)
+   - EMAIL_PORT: 587
+   - EMAIL_USER: votre-email@gmail.com
+   - EMAIL_PASS: votre-mot-de-passe-app
+   - EMAIL_FROM: WorkSpace <no-reply@yourapp.com>
+
+2. Pour Gmail, créez un mot de passe d'application:
+   - Allez dans votre compte Google
+   - Sécurité > Mots de passe d'applications
+   - Générez un nouveau mot de passe pour l'app
+
+3. Testez la configuration avec le bouton "Tester l'Email"
+
+📝 Le code serveur Nodemailer sera fourni séparément.
+                `);
+            },
+
+            // ========================================
+            // API ET CONNEXIONS
+            // ========================================
+
+            async makeApiRequest(endpoint, method = 'GET', data = null) {
+                const url = this.config.serverUrl + endpoint;
+                const options = {
+                    method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    },
+                    mode: 'cors',
+                    credentials: 'omit'
+                };
+
+                if (data) {
+                    options.body = JSON.stringify(data);
+                }
+
+                if (this.config.debug) {
+                    console.log(`🔄 API ${method} ${endpoint}`, data || '');
+                }
+
+                try {
+                    const response = await fetch(url, options);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+
+                    const contentType = response.headers.get('content-type');
+                    const result = contentType?.includes('application/json') 
+                        ? await response.json() 
+                        : await response.text();
+
+                    this.updateConnectionStatus(true);
+                    
+                    if (this.config.debug) {
+                        console.log(`✅ API Response:`, result);
+                    }
+                    
+                    return result;
+                } catch (error) {
+                    console.error(`❌ API Error ${method} ${endpoint}:`, error);
+                    this.updateConnectionStatus(false);
+                    
+                    if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+                        this.showStatus('❌ Erreur CORS - Vérifiez la configuration du serveur', 'error');
+                    } else if (error.message.includes('CORS')) {
+                        this.showStatus('❌ Problème CORS - Le serveur doit autoriser votre domaine', 'error');
+                    } else {
+                        this.showStatus(`❌ Erreur serveur: ${error.message}`, 'error');
+                    }
+                    
+                    return null;
+                }
+            },
+
+            async checkConnection() {
+                const result = await this.makeApiRequest('/api/ping');
+                if (result) {
+                    this.showStatus('🟢 Connecté au serveur', 'success');
+                    this.loadDataFromServer();
+                } else {
+                    this.showStatus('🔴 Serveur non disponible - Mode hors ligne', 'error');
+                }
+            },
+
+            async loadDataFromServer() {
+                const data = await this.makeApiRequest('/api/data');
+                if (data) {
+                    this.state.tasks = data.tasks || this.state.tasks;
+                    this.state.events = data.events || this.state.events;
+                    this.state.collaborators = data.collaborators || this.state.collaborators;
+                    this.state.notifications = data.notifications || this.state.notifications;
+                    
+                    this.updateAllViews();
+                    this.showStatus('📥 Données synchronisées', 'success');
+                }
+            },
+
+            async saveDataToServer() {
+                if (!this.config.autoSave) return;
+                
+                const data = {
+                    tasks: this.state.tasks,
+                    events: this.state.events,
+                    collaborators: this.state.collaborators,
+                    notifications: this.state.notifications
+                };
+                
+                const result = await this.makeApiRequest('/api/data', 'POST', data);
+                if (result) {
+                    if (this.config.debug) {
+                        console.log('💾 Données sauvegardées');
+                    }
+                }
+            },
+
+            updateConnectionStatus(isConnected) {
+                this.state.isConnected = isConnected;
+                const statusEl = document.getElementById('connection-status');
+                if (statusEl) {
+                    statusEl.className = `connection-status ${isConnected ? 'connected' : 'disconnected'}`;
+                    statusEl.innerHTML = `
+                        <div class="connection-dot"></div>
+                        <span>${isConnected ? 'Connecté' : 'Déconnecté'}</span>
+                    `;
+                }
+            },
+
+            startPeriodicSync() {
+                // Synchronisation automatique toutes les 30 secondes
+                setInterval(() => {
+                    if (this.state.isConnected) {
+                        this.loadDataFromServer();
+                    }
+                }, 30000);
+            },
+
+            // ========================================
+            // GESTION DES MODALES
+            // ========================================
+
+            showTaskModal(taskId = null) {
+                this.state.editingTaskId = taskId;
+                const modal = document.getElementById('task-modal');
+                const form = document.getElementById('task-form');
+                const title = modal.querySelector('.modal-title');
+                
+                if (taskId) {
+                    const task = this.state.tasks.find(t => t.id === taskId);
+                    title.textContent = '✏️ Modifier la Tâche';
+                    form.title.value = task.title;
+                    form.description.value = task.description;
+                    form.status.value = task.status;
+                    form.priority.value = task.priority;
+                    form.startDate.value = task.startDate || '';
+                    form.dueDate.value = task.dueDate || '';
+                    
+                    // Charger les collaborateurs assignés
+                    this.state.selectedTaskCollaborators = [...(task.collaborators || [])];
+                } else {
+                    title.textContent = '✨ Nouvelle Tâche';
+                    form.reset();
+                    this.clearCollaboratorSelection('task');
+                }
+
+                this.renderCollaboratorsDropdown('task');
+                this.updateSelectedCollaborators('task');
+                modal.classList.add('show');
+            },
+
+            showEventModal(eventId = null) {
+                this.state.editingEventId = eventId;
+                const modal = document.getElementById('event-modal');
+                const form = document.getElementById('event-form');
+                const title = modal.querySelector('.modal-title');
+                
+                if (eventId) {
+                    const event = this.state.events.find(e => e.id === eventId);
+                    title.textContent = '✏️ Modifier l\'Événement';
+                    form.title.value = event.title;
+                    form.description.value = event.description;
+                    form.date.value = event.date;
+                    form.time.value = event.time || '';
+                    
+                    // Charger les collaborateurs invités
+                    this.state.selectedEventCollaborators = [...(event.collaborators || [])];
+                } else {
+                    title.textContent = '🎯 Nouvel Événement';
+                    form.reset();
+                    this.clearCollaboratorSelection('event');
+                }
+
+                this.renderCollaboratorsDropdown('event');
+                this.updateSelectedCollaborators('event');
+                modal.classList.add('show');
+            },
+
+            showCollaboratorModal(collaboratorId = null) {
+                this.state.editingCollaboratorId = collaboratorId;
+                const modal = document.getElementById('collaborator-modal');
+                const form = document.getElementById('collaborator-form');
+                const title = modal.querySelector('.modal-title');
+                
+                if (collaboratorId) {
+                    const collaborator = this.state.collaborators.find(c => c.id === collaboratorId);
+                    title.textContent = '✏️ Modifier le Membre';
+                    form.name.value = collaborator.name;
+                    form.role.value = collaborator.role;
+                    form.email.value = collaborator.email;
+                    document.getElementById('selected-emoji').value = collaborator.emoji;
+                    document.getElementById('emoji-preview').textContent = collaborator.emoji;
+                } else {
+                    title.textContent = '👤 Nouveau Membre';
+                    form.reset();
+                    document.getElementById('selected-emoji').value = '👤';
+                    document.getElementById('emoji-preview').textContent = '👤';
+                }
+                
+                modal.classList.add('show');
+            },
+
+            closeModal(modalId) {
+                document.getElementById(modalId).classList.remove('show');
+                this.state.editingTaskId = null;
+                this.state.editingEventId = null;
+                this.state.editingCollaboratorId = null;
+                this.clearCollaboratorSelection('task');
+                this.clearCollaboratorSelection('event');
+            },
+
+            // ========================================
+            // GESTION DES FORMULAIRES
+            // ========================================
+
+            async handleTaskSubmit(form) {
+                const formData = new FormData(form);
+                const submitBtn = form.querySelector('button[type="submit"]');
+                const loading = submitBtn.querySelector('.loading');
+                
+                // Animation de chargement
+                loading.style.display = 'inline-block';
+                submitBtn.disabled = true;
+                
+                const task = {
+                    id: this.state.editingTaskId || Date.now(),
+                    title: formData.get('title'),
+                    description: formData.get('description'),
+                    status: formData.get('status'),
+                    priority: formData.get('priority'),
+                    startDate: formData.get('startDate'),
+                    dueDate: formData.get('dueDate'),
+                    color: this.getColorForPriority(formData.get('priority')),
+                    collaborators: [...this.state.selectedTaskCollaborators],
+                    createdAt: this.state.editingTaskId 
+                        ? this.state.tasks.find(t => t.id === this.state.editingTaskId).createdAt 
+                        : new Date()
+                };
+
+                let isNewTask = false;
+                if (this.state.editingTaskId) {
+                    const index = this.state.tasks.findIndex(t => t.id === this.state.editingTaskId);
+                    this.state.tasks[index] = task;
+                    this.showStatus('✅ Tâche mise à jour', 'success');
+                } else {
+                    this.state.tasks.push(task);
+                    isNewTask = true;
+                    this.showStatus('✅ Nouvelle tâche créée', 'success');
+                }
+
+                // Créer des notifications et envoyer des emails pour les assignations
+                if (task.collaborators && task.collaborators.length > 0) {
+                    for (const collaboratorId of task.collaborators) {
+                        const collaborator = this.state.collaborators.find(c => c.id === collaboratorId);
+                        if (!collaborator) continue;
+
+                        // Créer une notification
+                        const notification = {
+                            id: Date.now() + Math.random(),
+                            collaboratorId: collaboratorId,
+                            type: 'task-assigned',
+                            title: isNewTask ? 'Nouvelle tâche assignée' : 'Tâche mise à jour',
+                            description: `Vous avez été assigné(e) à "${task.title}"`,
+                            taskId: task.id,
+                            isRead: false,
+                            createdAt: new Date()
+                        };
+                        this.state.notifications.push(notification);
+
+                        // Envoyer un email si activé
+                        if (isNewTask) {
+                            await this.sendEmailNotification('taskAssigned', {
+                                to: collaborator.email,
+                                collaborator: collaborator,
+                                task: task,
+                                subject: `Nouvelle tâche assignée: ${task.title}`,
+                                assignedBy: this.state.collaborators.find(c => c.id === this.config.currentUserId)
+                            });
+                        }
+                    }
+                }
+
+                await this.saveDataToServer();
+                this.updateAllViews();
+                this.closeModal('task-modal');
+                
+                // Réinitialiser le bouton
+                loading.style.display = 'none';
+                submitBtn.disabled = false;
+            },
+
+            async handleEventSubmit(form) {
+                const formData = new FormData(form);
+                
+                const event = {
+                    id: this.state.editingEventId || Date.now(),
+                    title: formData.get('title'),
+                    description: formData.get('description'),
+                    date: formData.get('date'),
+                    time: formData.get('time'),
+                    collaborators: [...this.state.selectedEventCollaborators],
+                    createdAt: this.state.editingEventId 
+                        ? this.state.events.find(e => e.id === this.state.editingEventId).createdAt 
+                        : new Date()
+                };
+
+                let isNewEvent = false;
+                if (this.state.editingEventId) {
+                    const index = this.state.events.findIndex(e => e.id === this.state.editingEventId);
+                    this.state.events[index] = event;
+                    this.showStatus('✅ Événement mis à jour', 'success');
+                } else {
+                    this.state.events.push(event);
+                    isNewEvent = true;
+                    this.showStatus('✅ Nouvel événement créé', 'success');
+                }
+
+                // Créer des notifications et envoyer des emails pour les invitations
+                if (event.collaborators && event.collaborators.length > 0) {
+                    for (const collaboratorId of event.collaborators) {
+                        const collaborator = this.state.collaborators.find(c => c.id === collaboratorId);
+                        if (!collaborator) continue;
+
+                        // Créer une notification
+                        const notification = {
+                            id: Date.now() + Math.random(),
+                            collaboratorId: collaboratorId,
+                            type: 'event-assigned',
+                            title: isNewEvent ? 'Nouvel événement' : 'Événement mis à jour',
+                            description: `Vous êtes invité(e) à "${event.title}" le ${new Date(event.date).toLocaleDateString('fr-FR')}`,
+                            eventId: event.id,
+                            isRead: false,
+                            createdAt: new Date()
+                        };
+                        this.state.notifications.push(notification);
+
+                        // Envoyer un email si activé
+                        if (isNewEvent) {
+                            await this.sendEmailNotification('eventAssigned', {
+                                to: collaborator.email,
+                                collaborator: collaborator,
+                                event: event,
+                                subject: `Invitation: ${event.title}`,
+                                invitedBy: this.state.collaborators.find(c => c.id === this.config.currentUserId)
+                            });
+                        }
+                    }
+                }
+
+                await this.saveDataToServer();
+                this.updateAllViews();
+                this.closeModal('event-modal');
+            },
+
+            async handleCollaboratorSubmit(form) {
+                const formData = new FormData(form);
+                
+                const collaborator = {
+                    id: this.state.editingCollaboratorId || Date.now(),
+                    name: formData.get('name'),
+                    role: formData.get('role'),
+                    email: formData.get('email'),
+                    emoji: formData.get('emoji') || this.getRandomEmoji(),
+                    createdAt: this.state.editingCollaboratorId 
+                        ? this.state.collaborators.find(c => c.id === this.state.editingCollaboratorId).createdAt 
+                        : new Date()
+                };
+
+                if (this.state.editingCollaboratorId) {
+                    const index = this.state.collaborators.findIndex(c => c.id === this.state.editingCollaboratorId);
+                    this.state.collaborators[index] = collaborator;
+                    this.showStatus('✅ Membre mis à jour', 'success');
+                } else {
+                    this.state.collaborators.push(collaborator);
+                    this.showStatus('✅ Nouveau membre ajouté', 'success');
+                }
+
+                await this.saveDataToServer();
+                this.updateAllViews();
+                this.closeModal('collaborator-modal');
+            },
+
+            // ========================================
+            // FONCTIONS DE RENDU
+            // ========================================
+
+            updateAllViews() {
+                this.updateDashboard();
+                this.renderKanban();
+                this.renderTimeline();
+                this.renderCalendar();
+                this.renderEvents();
+                this.renderCollaborators();
+                this.renderNotifications();
+                this.updateNotificationBadge();
+                this.renderCollaboratorsDropdown('task');
+                this.renderCollaboratorsDropdown('event');
+            },
+
+            updateDashboard() {
+                const totalTasks = this.state.tasks.length;
+                const completedTasks = this.state.tasks.filter(t => t.status === 'done').length;
+                const pendingTasks = this.state.tasks.filter(t => t.status !== 'done').length;
+                const upcomingEvents = this.state.events.filter(e => new Date(e.date) >= new Date()).length;
+
+                document.getElementById('total-tasks').textContent = totalTasks;
+                document.getElementById('completed-tasks').textContent = completedTasks;
+                document.getElementById('pending-tasks').textContent = pendingTasks;
+                document.getElementById('upcoming-events').textContent = upcomingEvents;
+
+                this.renderRecentTasks();
+            },
+
+            renderRecentTasks() {
+                const container = document.getElementById('recent-tasks');
+                const recentTasks = this.state.tasks.slice(-5).reverse();
+                
+                if (recentTasks.length === 0) {
+                    container.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 40px;">Aucune tâche pour le moment</p>';
+                    return;
+                }
+                
+                const html = recentTasks.map(task => `
+                    <div class="task-card" style="border-left-color: ${task.color}; cursor: pointer;" onclick="App.showTaskModal(${task.id})">
+                        <div class="task-title">${task.title}</div>
+                        <div class="task-meta">
+                            <div style="display: flex; align-items: center; gap: 8px;">
                                 <span class="priority priority-${task.priority}">${this.getPriorityLabel(task.priority)}</span>
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    ${collaboratorsHtml}
-                                    <button onclick="App.showTaskModal(${task.id})" style="background: none; border: none; cursor: pointer; font-size: 16px;">✏️</button>
-                                    <button onclick="App.deleteTask(${task.id})" style="background: none; border: none; cursor: pointer; font-size: 16px;">🗑️</button>
+                                <span>${this.getStatusLabel(task.status)}</span>
+                            </div>
+                            <div class="assigned-collaborators">
+                                ${this.renderTaskCollaborators(task)}
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                
+                container.innerHTML = html;
+            },
+
+            renderTaskCollaborators(task) {
+                if (!task.collaborators || task.collaborators.length === 0) return '';
+                
+                return task.collaborators.map(collaboratorId => {
+                    const collaborator = this.state.collaborators.find(c => c.id === collaboratorId);
+                    return collaborator ? `
+                        <div class="assigned-collaborator" data-name="${collaborator.name}">${collaborator.emoji}</div>
+                    ` : '';
+                }).join('');
+            },
+
+            renderKanban() {
+                const columns = document.querySelectorAll('.kanban-column');
+                
+                columns.forEach(column => {
+                    const status = column.dataset.status;
+                    const tasksContainer = column.querySelector('.column-tasks');
+                    const countElement = column.querySelector('.task-count');
+                    
+                    const columnTasks = this.state.tasks.filter(task => task.status === status);
+                    countElement.textContent = columnTasks.length;
+                    
+                    const html = columnTasks.map(task => {
+                        const collaboratorsHtml = this.renderTaskCollaborators(task);
+                        
+                        return `
+                            <div class="task-card" data-task-id="${task.id}" style="border-left-color: ${task.color}">
+                                <div class="task-title">${task.title}</div>
+                                <div class="task-meta">
+                                    <span class="priority priority-${task.priority}">${this.getPriorityLabel(task.priority)}</span>
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <div class="assigned-collaborators">${collaboratorsHtml}</div>
+                                        <button onclick="App.showTaskModal(${task.id})" style="background: none; border: none; cursor: pointer; font-size: 16px;">✏️</button>
+                                        <button onclick="App.deleteTask(${task.id})" style="background: none; border: none; cursor: pointer; font-size: 16px;">🗑️</button>
+                                    </div>
                                 </div>
+                            </div>
+                        `;
+                    }).join('');
+                    
+                    tasksContainer.innerHTML = html;
+                });
+            },
+
+            renderTimeline() {
+                const track = document.getElementById('timeline-track');
+                const filteredTasks = this.state.tasks.filter(task => {
+                    const hasDate = task.dueDate || task.startDate;
+                    const matchesFilter = this.state.timelineFilter === 'all' || task.status === this.state.timelineFilter;
+                    return hasDate && matchesFilter;
+                });
+
+                if (filteredTasks.length === 0) {
+                    track.innerHTML = '<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: var(--text-secondary); font-size: 18px;">📅 Aucune tâche avec dates</div>';
+                    return;
+                }
+
+                // Simulation d'une timeline simple
+                const html = filteredTasks.map((task, index) => `
+                    <div class="timeline-task" style="
+                        left: ${(index * 250) + 50}px;
+                        top: ${80 + (index % 3) * 80}px;
+                        border-left-color: ${task.color};
+                    " onclick="App.showTaskModal(${task.id})">
+                        <div style="font-weight: 600; margin-bottom: 8px;">${task.title}</div>
+                        <div style="font-size: 12px; color: var(--text-secondary);">
+                            ${task.startDate ? new Date(task.startDate).toLocaleDateString('fr-FR') : ''} 
+                            ${task.dueDate ? '→ ' + new Date(task.dueDate).toLocaleDateString('fr-FR') : ''}
+                        </div>
+                        <div style="margin-top: 8px; display: flex; justify-content: space-between; align-items: center;">
+                            <span class="priority priority-${task.priority}">${this.getPriorityLabel(task.priority)}</span>
+                            <div class="assigned-collaborators">${this.renderTaskCollaborators(task)}</div>
+                        </div>
+                    </div>
+                `).join('');
+                
+                track.innerHTML = html;
+            },
+
+            initializeCalendar() {
+                this.renderCalendar();
+            },
+
+            renderCalendar() {
+                const monthNames = [
+                    'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+                    'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
+                ];
+                
+                const monthYear = document.getElementById('calendar-month-year');
+                if (monthYear) {
+                    monthYear.textContent = monthNames[this.state.currentDate.getMonth()] + ' ' + this.state.currentDate.getFullYear();
+                }
+                
+                const grid = document.getElementById('calendar-grid');
+                if (!grid) return;
+
+                const firstDay = new Date(this.state.currentDate.getFullYear(), this.state.currentDate.getMonth(), 1);
+                const startDate = new Date(firstDay);
+                startDate.setDate(startDate.getDate() - firstDay.getDay());
+                
+                const dayHeaders = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+                let html = '';
+                
+                // En-têtes des jours
+                dayHeaders.forEach(day => {
+                    html += `<div style="background: var(--bg-secondary); padding: 12px; font-weight: 700; text-align: center; color: var(--text-primary);">${day}</div>`;
+                });
+                
+                // Jours du calendrier
+                for (let i = 0; i < 42; i++) {
+                    const date = new Date(startDate);
+                    date.setDate(startDate.getDate() + i);
+                    const dateStr = date.toISOString().split('T')[0];
+                    
+                    const isCurrentMonth = date.getMonth() === this.state.currentDate.getMonth();
+                    const isToday = date.toDateString() === new Date().toDateString();
+                    
+                    const dayEvents = this.state.events.filter(event => event.date === dateStr);
+                    const dayTasks = this.state.tasks.filter(task => {
+                        return task.dueDate === dateStr || task.startDate === dateStr;
+                    });
+                    
+                    let classes = 'calendar-day';
+                    if (!isCurrentMonth) classes += ' other-month';
+                    if (isToday) classes += ' today';
+                    
+                    const eventDots = dayEvents.map(() => '<span class="event-dot"></span>').join('');
+                    const taskItems = dayTasks.slice(0, 2).map(task => 
+                        `<div style="background: ${task.color}; color: white; padding: 2px 6px; margin: 1px 0; border-radius: 3px; font-size: 10px; cursor: pointer;" onclick="App.showTaskModal(${task.id})">${task.title}</div>`
+                    ).join('');
+                    
+                    html += `
+                        <div class="${classes}">
+                            <div style="font-weight: 600; margin-bottom: 4px;">${date.getDate()}</div>
+                            ${eventDots}
+                            ${taskItems}
+                            ${dayTasks.length > 2 ? `<div style="font-size: 10px; color: var(--text-secondary);">+${dayTasks.length - 2} autres</div>` : ''}
+                        </div>
+                    `;
+                }
+                
+                grid.innerHTML = html;
+            },
+
+            renderEvents() {
+                const container = document.getElementById('events-list');
+                const sortedEvents = [...this.state.events].sort((a, b) => new Date(a.date) - new Date(b.date));
+                
+                if (sortedEvents.length === 0) {
+                    container.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 40px;">Aucun événement programmé</p>';
+                    return;
+                }
+                
+                const html = sortedEvents.map(event => {
+                    const eventDate = new Date(event.date);
+                    const formattedDate = eventDate.toLocaleDateString('fr-FR');
+                    const timeDisplay = event.time ? ` à ${event.time}` : '';
+                    const collaboratorsHtml = this.renderEventCollaborators(event);
+                    
+                    return `
+                        <div class="notification-item" style="cursor: pointer;" onclick="App.showEventModal(${event.id})">
+                            <div style="font-size: 24px;">🎯</div>
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600; margin-bottom: 4px;">${event.title}</div>
+                                <div style="color: var(--text-secondary); font-size: 14px;">${formattedDate}${timeDisplay}</div>
+                                ${event.description ? `<div style="color: var(--text-secondary); font-size: 13px; margin-top: 4px;">${event.description}</div>` : ''}
+                                <div class="assigned-collaborators" style="margin-top: 8px;">${collaboratorsHtml}</div>
+                            </div>
+                            <div style="display: flex; gap: 8px;">
+                                <button onclick="event.stopPropagation(); App.showEventModal(${event.id})" style="background: none; border: none; cursor: pointer; font-size: 16px;">✏️</button>
+                                <button onclick="event.stopPropagation(); App.deleteEvent(${event.id})" style="background: none; border: none; cursor: pointer; font-size: 16px;">🗑️</button>
                             </div>
                         </div>
                     `;
                 }).join('');
                 
-                tasksContainer.innerHTML = html;
-            });
-        },
+                container.innerHTML = html;
+            },
 
-        renderTimeline() {
-            const track = document.getElementById('timeline-track');
-            const filteredTasks = this.state.tasks.filter(task => {
-                const hasDate = task.dueDate || task.startDate;
-                const matchesFilter = this.state.timelineFilter === 'all' || task.status === this.state.timelineFilter;
-                return hasDate && matchesFilter;
-            });
-
-            if (filteredTasks.length === 0) {
-                track.innerHTML = '<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: var(--text-secondary); font-size: 18px;">📅 Aucune tâche avec dates</div>';
-                return;
-            }
-
-            // Simulation d'une timeline simple
-            const html = filteredTasks.map((task, index) => `
-                <div class="timeline-task" style="
-                    left: ${(index * 250) + 50}px;
-                    top: ${80 + (index % 3) * 80}px;
-                    border-left-color: ${task.color};
-                " onclick="App.showTaskModal(${task.id})">
-                    <div style="font-weight: 600; margin-bottom: 8px;">${task.title}</div>
-                    <div style="font-size: 12px; color: var(--text-secondary);">
-                        ${task.startDate ? new Date(task.startDate).toLocaleDateString('fr-FR') : ''} 
-                        ${task.dueDate ? '→ ' + new Date(task.dueDate).toLocaleDateString('fr-FR') : ''}
-                    </div>
-                    <div style="margin-top: 8px;">
-                        <span class="priority priority-${task.priority}">${this.getPriorityLabel(task.priority)}</span>
-                    </div>
-                </div>
-            `).join('');
-            
-            track.innerHTML = html;
-        },
-
-        initializeCalendar() {
-            this.renderCalendar();
-        },
-
-        renderCalendar() {
-            const monthNames = [
-                'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
-                'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
-            ];
-            
-            const monthYear = document.getElementById('calendar-month-year');
-            monthYear.textContent = monthNames[this.state.currentDate.getMonth()] + ' ' + this.state.currentDate.getFullYear();
-            
-            const grid = document.getElementById('calendar-grid');
-            const firstDay = new Date(this.state.currentDate.getFullYear(), this.state.currentDate.getMonth(), 1);
-            const startDate = new Date(firstDay);
-            startDate.setDate(startDate.getDate() - firstDay.getDay());
-            
-            const dayHeaders = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
-            let html = '';
-            
-            // En-têtes des jours
-            dayHeaders.forEach(day => {
-                html += `<div style="background: var(--bg-secondary); padding: 12px; font-weight: 700; text-align: center; color: var(--text-primary);">${day}</div>`;
-            });
-            
-            // Jours du calendrier
-            for (let i = 0; i < 42; i++) {
-                const date = new Date(startDate);
-                date.setDate(startDate.getDate() + i);
-                const dateStr = date.toISOString().split('T')[0];
+            renderEventCollaborators(event) {
+                if (!event.collaborators || event.collaborators.length === 0) return '';
                 
-                const isCurrentMonth = date.getMonth() === this.state.currentDate.getMonth();
-                const isToday = date.toDateString() === new Date().toDateString();
+                return event.collaborators.map(collaboratorId => {
+                    const collaborator = this.state.collaborators.find(c => c.id === collaboratorId);
+                    return collaborator ? `
+                        <div class="assigned-collaborator" data-name="${collaborator.name}">${collaborator.emoji}</div>
+                    ` : '';
+                }).join('');
+            },
+
+            renderCollaborators() {
+                const grid = document.getElementById('collaborators-grid');
                 
-                const dayEvents = this.state.events.filter(event => event.date === dateStr);
-                const dayTasks = this.state.tasks.filter(task => {
-                    return task.dueDate === dateStr || task.startDate === dateStr;
+                if (this.state.collaborators.length === 0) {
+                    grid.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 40px; grid-column: 1 / -1;">Aucun membre dans l\'équipe</p>';
+                    return;
+                }
+                
+                const html = this.state.collaborators.map(collaborator => {
+                    const taskCount = this.state.tasks.filter(task => 
+                        task.collaborators?.includes(collaborator.id)
+                    ).length;
+                    
+                    const completedTasks = this.state.tasks.filter(task => 
+                        task.collaborators?.includes(collaborator.id) && task.status === 'done'
+                    ).length;
+
+                    const eventCount = this.state.events.filter(event => 
+                        event.collaborators?.includes(collaborator.id)
+                    ).length;
+                    
+                    return `
+                        <div class="stat-card" style="text-align: center; cursor: pointer;" onclick="App.showCollaboratorModal(${collaborator.id})">
+                            <div style="font-size: 64px; margin-bottom: 16px;">${collaborator.emoji}</div>
+                            <div style="font-size: 20px; font-weight: 700; margin-bottom: 8px; color: var(--text-primary);">${collaborator.name}</div>
+                            <div style="color: var(--text-secondary); margin-bottom: 8px;">${collaborator.role}</div>
+                            <div style="color: var(--text-muted); font-size: 12px; margin-bottom: 16px;">📧 ${collaborator.email}</div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; padding-top: 16px; border-top: 1px solid var(--border-color);">
+                                <div>
+                                    <div style="font-size: 20px; font-weight: 700; color: var(--primary-color);">${taskCount}</div>
+                                    <div style="font-size: 11px; color: var(--text-secondary);">Tâches</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 20px; font-weight: 700; color: var(--accent-color);">${completedTasks}</div>
+                                    <div style="font-size: 11px; color: var(--text-secondary);">Terminées</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 20px; font-weight: 700; color: var(--warning-color);">${eventCount}</div>
+                                    <div style="font-size: 11px; color: var(--text-secondary);">Événements</div>
+                                </div>
+                            </div>
+                            <div style="margin-top: 16px; display: flex; gap: 8px; justify-content: center;">
+                                <button onclick="event.stopPropagation(); App.showCollaboratorModal(${collaborator.id})" style="background: none; border: none; cursor: pointer; font-size: 16px;">✏️</button>
+                                <button onclick="event.stopPropagation(); App.deleteCollaborator(${collaborator.id})" style="background: none; border: none; cursor: pointer; font-size: 16px;">🗑️</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+                grid.innerHTML = html;
+                this.updateCurrentUserSelect();
+            },
+
+            renderNotifications() {
+                const container = document.getElementById('notifications-list');
+                let filteredNotifications = [...this.state.notifications];
+                
+                if (this.state.notificationFilter !== 'all') {
+                    if (this.state.notificationFilter === 'unread') {
+                        filteredNotifications = filteredNotifications.filter(n => !n.isRead);
+                    } else {
+                        filteredNotifications = filteredNotifications.filter(n => n.type === this.state.notificationFilter);
+                    }
+                }
+                
+                filteredNotifications.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                
+                if (filteredNotifications.length === 0) {
+                    container.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 40px;">📭 Aucune notification</div>';
+                    return;
+                }
+                
+                const html = filteredNotifications.map(notification => {
+                    const collaborator = this.state.collaborators.find(c => c.id === notification.collaboratorId);
+                    const timeAgo = this.getTimeAgo(notification.createdAt);
+                    
+                    return `
+                        <div class="notification-item ${notification.isRead ? '' : 'unread'}">
+                            <div style="font-size: 32px;">${collaborator?.emoji || '👤'}</div>
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600; margin-bottom: 4px;">${notification.title}</div>
+                                <div style="color: var(--text-secondary); font-size: 14px; margin-bottom: 8px;">${notification.description}</div>
+                                <div style="color: var(--text-secondary); font-size: 12px;">${timeAgo}</div>
+                            </div>
+                            <div style="display: flex; gap: 8px;">
+                                ${notification.taskId ? `<button onclick="App.viewTask(${notification.taskId})" style="background: none; border: 1px solid var(--border-color); padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px;">Voir la tâche</button>` : ''}
+                                ${notification.eventId ? `<button onclick="App.viewEvent(${notification.eventId})" style="background: none; border: 1px solid var(--border-color); padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px;">Voir l'événement</button>` : ''}
+                                ${!notification.isRead ? `<button onclick="App.markAsRead(${notification.id})" style="background: none; border: 1px solid var(--border-color); padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px;">✓</button>` : ''}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+                container.innerHTML = html;
+            },
+
+            updateNotificationBadge() {
+                const unreadCount = this.state.notifications.filter(n => !n.isRead && n.collaboratorId === this.config.currentUserId).length;
+                const badge = document.getElementById('notification-badge');
+                
+                if (badge) {
+                    if (unreadCount > 0) {
+                        badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+                        badge.style.display = 'inline-block';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                }
+            },
+
+            // ========================================
+            // FONCTIONS UTILITAIRES
+            // ========================================
+
+            async deleteTask(taskId) {
+                if (!confirm('Êtes-vous sûr de vouloir supprimer cette tâche ?')) return;
+                
+                this.state.tasks = this.state.tasks.filter(t => t.id !== taskId);
+                await this.saveDataToServer();
+                this.updateAllViews();
+                this.showStatus('🗑️ Tâche supprimée', 'success');
+            },
+
+            async deleteEvent(eventId) {
+                if (!confirm('Êtes-vous sûr de vouloir supprimer cet événement ?')) return;
+                
+                this.state.events = this.state.events.filter(e => e.id !== eventId);
+                await this.saveDataToServer();
+                this.updateAllViews();
+                this.showStatus('🗑️ Événement supprimé', 'success');
+            },
+
+            async deleteCollaborator(collaboratorId) {
+                if (!confirm('Êtes-vous sûr de vouloir supprimer ce membre ?')) return;
+                
+                // Retirer le collaborateur de toutes les tâches et événements
+                this.state.tasks.forEach(task => {
+                    if (task.collaborators) {
+                        task.collaborators = task.collaborators.filter(id => id !== collaboratorId);
+                    }
+                });
+
+                this.state.events.forEach(event => {
+                    if (event.collaborators) {
+                        event.collaborators = event.collaborators.filter(id => id !== collaboratorId);
+                    }
                 });
                 
-                let classes = 'calendar-day';
-                if (!isCurrentMonth) classes += ' other-month';
-                if (isToday) classes += ' today';
-                
-                const eventDots = dayEvents.map(() => '<span class="event-dot"></span>').join('');
-                const taskItems = dayTasks.slice(0, 2).map(task => 
-                    `<div style="background: ${task.color}; color: white; padding: 2px 6px; margin: 1px 0; border-radius: 3px; font-size: 10px; cursor: pointer;" onclick="App.showTaskModal(${task.id})">${task.title}</div>`
-                ).join('');
-                
-                html += `
-                    <div class="${classes}">
-                        <div style="font-weight: 600; margin-bottom: 4px;">${date.getDate()}</div>
-                        ${eventDots}
-                        ${taskItems}
-                        ${dayTasks.length > 2 ? `<div style="font-size: 10px; color: var(--text-secondary);">+${dayTasks.length - 2} autres</div>` : ''}
-                    </div>
-                `;
-            }
-            
-            grid.innerHTML = html;
-        },
+                this.state.collaborators = this.state.collaborators.filter(c => c.id !== collaboratorId);
+                await this.saveDataToServer();
+                this.updateAllViews();
+                this.showStatus('🗑️ Membre supprimé', 'success');
+            },
 
-        renderEvents() {
-            const container = document.getElementById('events-list');
-            const sortedEvents = [...this.state.events].sort((a, b) => new Date(a.date) - new Date(b.date));
-            
-            if (sortedEvents.length === 0) {
-                container.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 40px;">Aucun événement programmé</p>';
-                return;
-            }
-            
-            const html = sortedEvents.map(event => {
-                const eventDate = new Date(event.date);
-                const formattedDate = eventDate.toLocaleDateString('fr-FR');
-                const timeDisplay = event.time ? ` à ${event.time}` : '';
-                
-                return `
-                    <div class="notification-item" style="cursor: pointer;" onclick="App.showEventModal(${event.id})">
-                        <div style="font-size: 24px;">🎯</div>
-                        <div style="flex: 1;">
-                            <div style="font-weight: 600; margin-bottom: 4px;">${event.title}</div>
-                            <div style="color: var(--text-secondary); font-size: 14px;">${formattedDate}${timeDisplay}</div>
-                            ${event.description ? `<div style="color: var(--text-secondary); font-size: 13px; margin-top: 4px;">${event.description}</div>` : ''}
-                        </div>
-                        <div style="display: flex; gap: 8px;">
-                            <button onclick="event.stopPropagation(); App.showEventModal(${event.id})" style="background: none; border: none; cursor: pointer; font-size: 16px;">✏️</button>
-                            <button onclick="event.stopPropagation(); App.deleteEvent(${event.id})" style="background: none; border: none; cursor: pointer; font-size: 16px;">🗑️</button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-            
-            container.innerHTML = html;
-        },
-
-        renderCollaborators() {
-            const grid = document.getElementById('collaborators-grid');
-            
-            if (this.state.collaborators.length === 0) {
-                grid.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 40px; grid-column: 1 / -1;">Aucun membre dans l\'équipe</p>';
-                return;
-            }
-            
-            const html = this.state.collaborators.map(collaborator => {
-                const taskCount = this.state.tasks.filter(task => 
-                    task.collaborators?.includes(collaborator.id)
-                ).length;
-                
-                const completedTasks = this.state.tasks.filter(task => 
-                    task.collaborators?.includes(collaborator.id) && task.status === 'done'
-                ).length;
-                
-                return `
-                    <div class="stat-card" style="text-align: center; cursor: pointer;" onclick="App.showCollaboratorModal(${collaborator.id})">
-                        <div style="font-size: 64px; margin-bottom: 16px;">${collaborator.emoji}</div>
-                        <div style="font-size: 20px; font-weight: 700; margin-bottom: 8px; color: var(--text-primary);">${collaborator.name}</div>
-                        <div style="color: var(--text-secondary); margin-bottom: 16px;">${collaborator.role}</div>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding-top: 16px; border-top: 1px solid var(--border-color);">
-                            <div>
-                                <div style="font-size: 24px; font-weight: 700; color: var(--primary-color);">${taskCount}</div>
-                                <div style="font-size: 12px; color: var(--text-secondary);">Tâches</div>
-                            </div>
-                            <div>
-                                <div style="font-size: 24px; font-weight: 700; color: var(--accent-color);">${completedTasks}</div>
-                                <div style="font-size: 12px; color: var(--text-secondary);">Terminées</div>
-                            </div>
-                        </div>
-                        <div style="margin-top: 16px; display: flex; gap: 8px; justify-content: center;">
-                            <button onclick="event.stopPropagation(); App.showCollaboratorModal(${collaborator.id})" style="background: none; border: none; cursor: pointer; font-size: 16px;">✏️</button>
-                            <button onclick="event.stopPropagation(); App.deleteCollaborator(${collaborator.id})" style="background: none; border: none; cursor: pointer; font-size: 16px;">🗑️</button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-            
-            grid.innerHTML = html;
-            this.updateCurrentUserSelect();
-        },
-
-        renderNotifications() {
-            const container = document.getElementById('notifications-list');
-            let filteredNotifications = [...this.state.notifications];
-            
-            if (this.state.notificationFilter !== 'all') {
-                if (this.state.notificationFilter === 'unread') {
-                    filteredNotifications = filteredNotifications.filter(n => !n.isRead);
-                } else {
-                    filteredNotifications = filteredNotifications.filter(n => n.type === this.state.notificationFilter);
+            markAsRead(notificationId) {
+                const notification = this.state.notifications.find(n => n.id === notificationId);
+                if (notification) {
+                    notification.isRead = true;
+                    this.renderNotifications();
+                    this.updateNotificationBadge();
+                    this.saveDataToServer();
                 }
-            }
-            
-            filteredNotifications.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-            
-            if (filteredNotifications.length === 0) {
-                container.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 40px;">📭 Aucune notification</div>';
-                return;
-            }
-            
-            const html = filteredNotifications.map(notification => {
-                const collaborator = this.state.collaborators.find(c => c.id === notification.collaboratorId);
-                const timeAgo = this.getTimeAgo(notification.createdAt);
-                
-                return `
-                    <div class="notification-item ${notification.isRead ? '' : 'unread'}">
-                        <div style="font-size: 32px;">${collaborator?.emoji || '👤'}</div>
-                        <div style="flex: 1;">
-                            <div style="font-weight: 600; margin-bottom: 4px;">${notification.title}</div>
-                            <div style="color: var(--text-secondary); font-size: 14px; margin-bottom: 8px;">${notification.description}</div>
-                            <div style="color: var(--text-secondary); font-size: 12px;">${timeAgo}</div>
-                        </div>
-                        <div style="display: flex; gap: 8px;">
-                            ${notification.taskId ? `<button onclick="App.viewTask(${notification.taskId})" style="background: none; border: 1px solid var(--border-color); padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px;">Voir la tâche</button>` : ''}
-                            ${!notification.isRead ? `<button onclick="App.markAsRead(${notification.id})" style="background: none; border: 1px solid var(--border-color); padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px;">✓</button>` : ''}
-                        </div>
-                    </div>
-                `;
-            }).join('');
-            
-            container.innerHTML = html;
-        },
+            },
 
-        updateNotificationBadge() {
-            const unreadCount = this.state.notifications.filter(n => !n.isRead && n.collaboratorId === this.config.currentUserId).length;
-            const badge = document.getElementById('notification-badge');
-            
-            if (unreadCount > 0) {
-                badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
-                badge.style.display = 'inline-block';
-            } else {
-                badge.style.display = 'none';
-            }
-        },
-
-        async deleteTask(taskId) {
-            if (!confirm('Êtes-vous sûr de vouloir supprimer cette tâche ?')) return;
-            
-            this.state.tasks = this.state.tasks.filter(t => t.id !== taskId);
-            await this.saveDataToServer();
-            this.updateAllViews();
-            this.showStatus('🗑️ Tâche supprimée', 'success');
-        },
-
-        async deleteEvent(eventId) {
-            if (!confirm('Êtes-vous sûr de vouloir supprimer cet événement ?')) return;
-            
-            this.state.events = this.state.events.filter(e => e.id !== eventId);
-            await this.saveDataToServer();
-            this.updateAllViews();
-            this.showStatus('🗑️ Événement supprimé', 'success');
-        },
-
-        async deleteCollaborator(collaboratorId) {
-            if (!confirm('Êtes-vous sûr de vouloir supprimer ce membre ?')) return;
-            
-            // Retirer le collaborateur de toutes les tâches
-            this.state.tasks.forEach(task => {
-                if (task.collaborators) {
-                    task.collaborators = task.collaborators.filter(id => id !== collaboratorId);
-                }
-            });
-            
-            this.state.collaborators = this.state.collaborators.filter(c => c.id !== collaboratorId);
-            await this.saveDataToServer();
-            this.updateAllViews();
-            this.showStatus('🗑️ Membre supprimé', 'success');
-        },
-
-        markAsRead(notificationId) {
-            const notification = this.state.notifications.find(n => n.id === notificationId);
-            if (notification) {
-                notification.isRead = true;
+            markAllAsRead() {
+                this.state.notifications.forEach(notification => {
+                    if (notification.collaboratorId === this.config.currentUserId) {
+                        notification.isRead = true;
+                    }
+                });
                 this.renderNotifications();
                 this.updateNotificationBadge();
                 this.saveDataToServer();
-            }
-        },
+                this.showStatus('✅ Toutes les notifications marquées comme lues', 'success');
+            },
 
-        markAllAsRead() {
-            this.state.notifications.forEach(notification => {
-                if (notification.collaboratorId === this.config.currentUserId) {
-                    notification.isRead = true;
+            viewTask(taskId) {
+                // Aller à la vue Kanban et mettre en évidence la tâche
+                document.querySelector('[data-view="kanban"]').click();
+                setTimeout(() => {
+                    const taskCard = document.querySelector(`[data-task-id="${taskId}"]`);
+                    if (taskCard) {
+                        taskCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        taskCard.style.boxShadow = '0 0 20px var(--primary-color)';
+                        setTimeout(() => {
+                            taskCard.style.boxShadow = '';
+                        }, 3000);
+                    }
+                }, 100);
+            },
+
+            viewEvent(eventId) {
+                // Aller à la vue Événements
+                document.querySelector('[data-view="events"]').click();
+                setTimeout(() => {
+                    this.showEventModal(eventId);
+                }, 100);
+            },
+
+            previousMonth() {
+                this.state.currentDate.setMonth(this.state.currentDate.getMonth() - 1);
+                this.renderCalendar();
+            },
+
+            nextMonth() {
+                this.state.currentDate.setMonth(this.state.currentDate.getMonth() + 1);
+                this.renderCalendar();
+            },
+
+            goToToday() {
+                this.state.currentDate = new Date();
+                this.renderCalendar();
+            },
+
+            changeTheme(color) {
+                document.documentElement.style.setProperty('--primary-color', color);
+                document.documentElement.style.setProperty('--primary-dark', this.darkenColor(color, 10));
+                
+                // Marquer la couleur comme sélectionnée
+                document.querySelectorAll('.color-option').forEach(option => {
+                    option.style.border = '3px solid transparent';
+                });
+                event.target.style.border = '3px solid var(--text-primary)';
+                
+                this.showStatus('🎨 Thème mis à jour', 'success');
+            },
+
+            updateServerUrl(url) {
+                this.config.serverUrl = url.replace(/\/$/, '');
+                localStorage.setItem('workspace-server-url', this.config.serverUrl);
+                this.showStatus('🔧 URL du serveur mise à jour', 'info');
+            },
+
+            changeCurrentUser(userId) {
+                this.config.currentUserId = parseInt(userId);
+                localStorage.setItem('workspace-current-user', this.config.currentUserId);
+                this.updateNotificationBadge();
+                this.showStatus('👤 Utilisateur actuel mis à jour', 'info');
+            },
+
+            updateCurrentUserSelect() {
+                const select = document.getElementById('current-user-select');
+                if (!select) return;
+                
+                select.innerHTML = '<option value="">Sélectionner un membre...</option>';
+                this.state.collaborators.forEach(collaborator => {
+                    const option = document.createElement('option');
+                    option.value = collaborator.id;
+                    option.textContent = `${collaborator.emoji} ${collaborator.name}`;
+                    if (collaborator.id === this.config.currentUserId) {
+                        option.selected = true;
+                    }
+                    select.appendChild(option);
+                });
+            },
+
+            async testConnection() {
+                if (!this.config.serverUrl || this.config.serverUrl === 'https://your-app-name.onrender.com') {
+                    this.showStatus('⚠️ Veuillez d\'abord configurer l\'URL de votre serveur Render.com', 'error');
+                    return;
                 }
-            });
-            this.renderNotifications();
-            this.updateNotificationBadge();
-            this.saveDataToServer();
-            this.showStatus('✅ Toutes les notifications marquées comme lues', 'success');
-        },
-
-        viewTask(taskId) {
-            // Aller à la vue Kanban et mettre en évidence la tâche
-            document.querySelector('[data-view="kanban"]').click();
-            setTimeout(() => {
-                const taskCard = document.querySelector(`[data-task-id="${taskId}"]`);
-                if (taskCard) {
-                    taskCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    taskCard.style.boxShadow = '0 0 20px var(--primary-color)';
-                    setTimeout(() => {
-                        taskCard.style.boxShadow = '';
-                    }, 3000);
-                }
-            }, 100);
-        },
-
-        previousMonth() {
-            this.state.currentDate.setMonth(this.state.currentDate.getMonth() - 1);
-            this.renderCalendar();
-        },
-
-        nextMonth() {
-            this.state.currentDate.setMonth(this.state.currentDate.getMonth() + 1);
-            this.renderCalendar();
-        },
-
-        goToToday() {
-            this.state.currentDate = new Date();
-            this.renderCalendar();
-        },
-
-        changeTheme(color) {
-            document.documentElement.style.setProperty('--primary-color', color);
-            document.documentElement.style.setProperty('--primary-dark', this.darkenColor(color, 10));
-            
-            // Marquer la couleur comme sélectionnée
-            document.querySelectorAll('.color-option').forEach(option => {
-                option.style.border = '3px solid transparent';
-            });
-            event.target.style.border = '3px solid var(--text-primary)';
-            
-            this.showStatus('🎨 Thème mis à jour', 'success');
-        },
-
-        updateServerUrl(url) {
-            this.config.serverUrl = url.replace(/\/$/, '');
-            localStorage.setItem('workspace-server-url', this.config.serverUrl);
-            this.showStatus('🔧 URL du serveur mise à jour', 'info');
-        },
-
-        changeCurrentUser(userId) {
-            this.config.currentUserId = parseInt(userId);
-            localStorage.setItem('workspace-current-user', this.config.currentUserId);
-            this.updateNotificationBadge();
-            this.showStatus('👤 Utilisateur actuel mis à jour', 'info');
-        },
-
-        updateCurrentUserSelect() {
-            const select = document.getElementById('current-user-select');
-            if (!select) return;
-            
-            select.innerHTML = '<option value="">Sélectionner un membre...</option>';
-            this.state.collaborators.forEach(collaborator => {
-                const option = document.createElement('option');
-                option.value = collaborator.id;
-                option.textContent = `${collaborator.emoji} ${collaborator.name}`;
-                if (collaborator.id === this.config.currentUserId) {
-                    option.selected = true;
-                }
-                select.appendChild(option);
-            });
-        },
-
-        async testConnection() {
-            if (!this.config.serverUrl || this.config.serverUrl === 'https://your-app-name.onrender.com') {
-                this.showStatus('⚠️ Veuillez d\'abord configurer l\'URL de votre serveur Render.com', 'error');
-                return;
-            }
-            
-            const btn = event.target;
-            const originalText = btn.textContent;
-            btn.textContent = '⏳ Test en cours...';
-            btn.disabled = true;
-            
-            console.log('🔍 Test de connexion vers:', this.config.serverUrl);
-            
-            // Test 1: Ping simple
-            console.log('📡 Test 1: Ping du serveur...');
-            let result = await this.makeApiRequest('/api/ping');
-            
-            if (result) {
-                console.log('✅ Ping réussi:', result);
-                this.showStatus(`✅ Connexion réussie! Port: ${result.port || 'inconnu'}`, 'success');
-            } else {
-                // Test 2: Test CORS spécifique
-                console.log('📡 Test 2: Test CORS spécifique...');
-                result = await this.makeApiRequest('/api/test-cors');
+                
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = '⏳ Test en cours...';
+                btn.disabled = true;
+                
+                console.log('🔍 Test de connexion vers:', this.config.serverUrl);
+                
+                const result = await this.makeApiRequest('/api/ping');
                 
                 if (result) {
-                    console.log('✅ Test CORS réussi:', result);
-                    this.showStatus('✅ CORS configuré correctement!', 'success');
+                    console.log('✅ Ping réussi:', result);
+                    this.showStatus(`✅ Connexion réussie! Port: ${result.port || 'inconnu'}`, 'success');
                 } else {
-                    // Test 3: Accès direct à la racine
-                    console.log('📡 Test 3: Accès racine...');
-                    try {
-                        const response = await fetch(this.config.serverUrl, { mode: 'no-cors' });
-                        console.log('⚠️ Serveur accessible en no-cors, problème CORS détecté');
-                        this.showStatus('⚠️ Serveur accessible mais CORS mal configuré', 'error');
-                    } catch (error) {
-                        console.log('❌ Serveur inaccessible:', error);
-                        this.showStatus('❌ Serveur inaccessible - Vérifiez l\'URL', 'error');
-                    }
+                    this.showStatus('❌ Serveur inaccessible - Vérifiez l\'URL', 'error');
                 }
-            }
-            
-            btn.textContent = originalText;
-            btn.disabled = false;
-            
-            // Afficher les informations de debug
-            this.showDebugConnectionInfo();
-        },
-
-        showDebugConnectionInfo() {
-            console.log('🐛 ========== DEBUG CONNEXION ==========');
-            console.log('🔗 URL Serveur:', this.config.serverUrl);
-            console.log('🌐 Origine actuelle:', window.location.origin);
-            console.log('📍 Protocol:', window.location.protocol);
-            console.log('🏠 Host:', window.location.host);
-            console.log('🔢 Port:', window.location.port || 'défaut');
-            console.log('👤 User Agent:', navigator.userAgent.substring(0, 50) + '...');
-            console.log('🍪 Cookies activés:', navigator.cookieEnabled);
-            console.log('🛡️ Statut connexion:', this.state.isConnected ? 'Connecté' : 'Déconnecté');
-            console.log('🐛 =====================================');
-            
-            // Vérifications automatiques
-            if (window.location.protocol === 'file:') {
-                console.warn('⚠️ ATTENTION: Vous utilisez file:// - utilisez LiveServer!');
-                this.showStatus('⚠️ Utilisez LiveServer (Go Live) pour éviter les problèmes CORS', 'error');
-            }
-            
-            if (this.config.serverUrl.includes('localhost') && window.location.origin.includes('localhost')) {
-                console.log('ℹ️ Connexion localhost à localhost détectée');
-            } else if (this.config.serverUrl.includes('onrender.com') && window.location.origin.includes('localhost')) {
-                console.log('ℹ️ Connexion LiveServer vers Render.com détectée');
-                console.log('💡 Astuce: Assurez-vous que le serveur autorise localhost dans CORS');
-            }
-        },
-
-        async syncData() {
-            this.showStatus('🔄 Synchronisation en cours...', 'info');
-            await this.loadDataFromServer();
-        },
-
-        showDebugInfo() {
-            const info = {
-                'URL Serveur': this.config.serverUrl,
-                'Utilisateur actuel': this.config.currentUserId,
-                'Statut connexion': this.state.isConnected ? 'Connecté' : 'Déconnecté',
-                'Origine': window.location.origin,
-                'Protocol': window.location.protocol,
-                'Host': window.location.host,
-                'Port': window.location.port || 'défaut',
-                'LiveServer actif': window.location.port === '5500' || window.location.port === '5501' || window.location.port === '5502',
-                'Nombre de tâches': this.state.tasks.length,
-                'Nombre d\'événements': this.state.events.length,
-                'Nombre de collaborateurs': this.state.collaborators.length,
-                'Notifications non lues': this.state.notifications.filter(n => !n.isRead).length
-            };
-            
-            console.table(info);
-            this.showDebugConnectionInfo();
-            this.showStatus('🐛 Informations de debug affichées dans la console (F12)', 'info');
-        },
-
-        async testCorsSpecific() {
-            if (!this.config.serverUrl) {
-                this.showStatus('⚠️ Configurez d\'abord l\'URL du serveur', 'error');
-                return;
-            }
-
-            this.showStatus('🧪 Test CORS en cours...', 'info');
-            
-            try {
-                const result = await this.makeApiRequest('/api/test-cors');
-                if (result && result.corsTest === 'SUCCESS') {
-                    this.showStatus('✅ Test CORS réussi!', 'success');
-                    console.log('✅ Résultat test CORS:', result);
-                } else {
-                    this.showStatus('❌ Test CORS échoué', 'error');
-                    console.log('❌ Échec test CORS:', result);
-                }
-            } catch (error) {
-                this.showStatus('❌ Erreur test CORS: ' + error.message, 'error');
-                console.error('❌ Erreur test CORS:', error);
-            }
-        },
-
-        exportData() {
-            const data = {
-                tasks: this.state.tasks,
-                events: this.state.events,
-                collaborators: this.state.collaborators,
-                notifications: this.state.notifications,
-                exportDate: new Date().toISOString()
-            };
-            
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `workspace-backup-${new Date().toISOString().split('T')[0]}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            
-            this.showStatus('📤 Données exportées avec succès', 'success');
-        },
-
-        importData() {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = '.json';
-            input.onchange = (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
                 
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    try {
-                        const data = JSON.parse(e.target.result);
-                        
-                        if (confirm('⚠️ Cette action remplacera toutes vos données actuelles. Continuer ?')) {
-                            this.state.tasks = data.tasks || [];
-                            this.state.events = data.events || [];
-                            this.state.collaborators = data.collaborators || [];
-                            this.state.notifications = data.notifications || [];
-                            
-                            this.updateAllViews();
-                            this.saveDataToServer();
-                            this.showStatus('📥 Données importées avec succès', 'success');
-                        }
-                    } catch (error) {
-                        this.showStatus('❌ Erreur lors de l\'importation: fichier invalide', 'error');
-                        console.error('Import error:', error);
-                    }
+                btn.textContent = originalText;
+                btn.disabled = false;
+            },
+
+            async syncData() {
+                this.showStatus('🔄 Synchronisation en cours...', 'info');
+                await this.loadDataFromServer();
+            },
+
+            showDebugInfo() {
+                const info = {
+                    'URL Serveur': this.config.serverUrl,
+                    'Utilisateur actuel': this.config.currentUserId,
+                    'Statut connexion': this.state.isConnected ? 'Connecté' : 'Déconnecté',
+                    'Notifications email': this.config.emailNotifications.enabled ? 'Activées' : 'Désactivées',
+                    'Origine': window.location.origin,
+                    'Protocol': window.location.protocol,
+                    'Host': window.location.host,
+                    'Port': window.location.port || 'défaut',
+                    'Nombre de tâches': this.state.tasks.length,
+                    'Nombre d\'événements': this.state.events.length,
+                    'Nombre de collaborateurs': this.state.collaborators.length,
+                    'Notifications non lues': this.state.notifications.filter(n => !n.isRead).length
                 };
-                reader.readAsText(file);
-            };
-            input.click();
-        },
-
-        clearAllData() {
-            if (!confirm('⚠️ Êtes-vous sûr de vouloir effacer TOUTES les données ?\n\nCette action est irréversible !')) {
-                return;
-            }
-            
-            if (!confirm('🚨 CONFIRMATION FINALE: Toutes vos tâches, événements, collaborateurs et notifications seront supprimés définitivement.\n\nContinuer ?')) {
-                return;
-            }
-            
-            this.state.tasks = [];
-            this.state.events = [];
-            this.state.collaborators = [];
-            this.state.notifications = [];
-            
-            this.updateAllViews();
-            this.saveDataToServer();
-            this.showStatus('🗑️ Toutes les données ont été effacées', 'success');
-        },
-
-        showStatus(message, type = 'info') {
-            const indicator = document.getElementById('status-indicator');
-            indicator.className = `status-indicator ${type} show`;
-            indicator.textContent = message;
-            
-            // Auto-masquer après 3 secondes
-            setTimeout(() => {
-                indicator.classList.remove('show');
-            }, 3000);
-        },
-
-        getColorForPriority(priority) {
-            const colors = {
-                'low': '#10b981',
-                'medium': '#f59e0b',
-                'high': '#ef4444'
-            };
-            return colors[priority] || '#3b82f6';
-        },
-
-        getPriorityLabel(priority) {
-            const labels = {
-                'low': 'Basse',
-                'medium': 'Moyenne',
-                'high': 'Haute'
-            };
-            return labels[priority] || priority;
-        },
-
-        getStatusLabel(status) {
-            const labels = {
-                'todo': 'À Faire',
-                'progress': 'En Cours',
-                'review': 'En Révision',
-                'done': 'Terminé'
-            };
-            return labels[status] || status;
-        },
-
-        getRandomEmoji() {
-            const emojis = [
-                '👨‍💻', '👩‍💻', '👨‍🎨', '👩‍🎨', '👨‍💼', '👩‍💼',
-                '🧑‍💻', '🧑‍🎨', '🧑‍💼', '👨‍🔬', '👩‍🔬', '🧑‍🔬',
-                '👨‍🏫', '👩‍🏫', '🧑‍🏫', '👨‍⚕️', '👩‍⚕️', '🧑‍⚕️',
-                '👨‍🔧', '👩‍🔧', '🧑‍🔧', '👨‍🍳', '👩‍🍳', '🧑‍🍳',
-                '🦸‍♂️', '🦸‍♀️', '🧙‍♂️', '🧙‍♀️', '🧚‍♂️', '🧚‍♀️'
-            ];
-            return emojis[Math.floor(Math.random() * emojis.length)];
-        },
-
-        darkenColor(color, percent) {
-            // Fonction simple pour assombrir une couleur
-            const num = parseInt(color.replace("#", ""), 16);
-            const amt = Math.round(2.55 * percent);
-            const R = (num >> 16) - amt;
-            const G = (num >> 8 & 0x00FF) - amt;
-            const B = (num & 0x0000FF) - amt;
-            return "#" + (0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 +
-                (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 +
-                (B < 255 ? B < 1 ? 0 : B : 255)).toString(16).slice(1);
-        },
-
-        getTimeAgo(date) {
-            const now = new Date();
-            const diffInMinutes = Math.floor((now - new Date(date)) / (1000 * 60));
-            
-            if (diffInMinutes < 1) return 'À l\'instant';
-            if (diffInMinutes < 60) return `${diffInMinutes} min`;
-            
-            const diffInHours = Math.floor(diffInMinutes / 60);
-            if (diffInHours < 24) return `${diffInHours}h`;
-            
-            const diffInDays = Math.floor(diffInHours / 24);
-            if (diffInDays < 7) return `${diffInDays}j`;
-            
-            return new Date(date).toLocaleDateString('fr-FR');
-        },
-
-        initializeDragAndDrop() {
-            const taskCards = document.querySelectorAll('.task-card[data-task-id]');
-            const columns = document.querySelectorAll('.column-tasks');
-
-            taskCards.forEach(card => {
-                card.draggable = true;
                 
-                card.addEventListener('dragstart', (e) => {
-                    e.dataTransfer.setData('text/plain', card.dataset.taskId);
-                    card.style.opacity = '0.5';
-                });
+                console.table(info);
+                this.showStatus('🐛 Informations de debug affichées dans la console (F12)', 'info');
+            },
 
-                card.addEventListener('dragend', () => {
-                    card.style.opacity = '';
-                });
-            });
+            async testCorsSpecific() {
+                if (!this.config.serverUrl) {
+                    this.showStatus('⚠️ Configurez d\'abord l\'URL du serveur', 'error');
+                    return;
+                }
 
-            columns.forEach(column => {
-                column.addEventListener('dragover', (e) => {
-                    e.preventDefault();
-                    column.style.background = 'rgba(37, 99, 235, 0.1)';
-                });
-
-                column.addEventListener('dragleave', () => {
-                    column.style.background = '';
-                });
-
-                column.addEventListener('drop', async (e) => {
-                    e.preventDefault();
-                    column.style.background = '';
-                    
-                    const taskId = parseInt(e.dataTransfer.getData('text/plain'));
-                    const newStatus = column.closest('.kanban-column').dataset.status;
-                    
-                    const task = this.state.tasks.find(t => t.id === taskId);
-                    if (task && task.status !== newStatus) {
-                        const oldStatus = task.status;
-                        task.status = newStatus;
-                        
-                        // Créer une notification pour les collaborateurs
-                        if (task.collaborators && task.collaborators.length > 0) {
-                            const notification = {
-                                id: Date.now() + Math.random(),
-                                collaboratorId: task.collaborators[0], // Premier collaborateur
-                                type: 'task-updated',
-                                title: 'Tâche mise à jour',
-                                description: `"${task.title}" est passée de "${this.getStatusLabel(oldStatus)}" à "${this.getStatusLabel(newStatus)}"`,
-                                taskId: task.id,
-                                isRead: false,
-                                createdAt: new Date()
-                            };
-                            this.state.notifications.push(notification);
-                        }
-                        
-                        await this.saveDataToServer();
-                        this.updateAllViews();
-                        this.showStatus(`✅ Tâche déplacée vers "${this.getStatusLabel(newStatus)}"`, 'success');
+                this.showStatus('🧪 Test CORS en cours...', 'info');
+                
+                try {
+                    const result = await this.makeApiRequest('/api/test-cors');
+                    if (result && result.corsTest === 'SUCCESS') {
+                        this.showStatus('✅ Test CORS réussi!', 'success');
+                        console.log('✅ Résultat test CORS:', result);
+                    } else {
+                        this.showStatus('❌ Test CORS échoué', 'error');
+                        console.log('❌ Échec test CORS:', result);
                     }
-                });
-            });
-        },
+                } catch (error) {
+                    this.showStatus('❌ Erreur test CORS: ' + error.message, 'error');
+                    console.error('❌ Erreur test CORS:', error);
+                }
+            },
 
-        initializeKeyboardShortcuts() {
-            document.addEventListener('keydown', (e) => {
-                // Ctrl/Cmd + N = Nouvelle tâche
-                if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
-                    e.preventDefault();
-                    this.showTaskModal();
+            exportData() {
+                const data = {
+                    tasks: this.state.tasks,
+                    events: this.state.events,
+                    collaborators: this.state.collaborators,
+                    notifications: this.state.notifications,
+                    exportDate: new Date().toISOString()
+                };
+                
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `workspace-backup-${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                this.showStatus('📤 Données exportées avec succès', 'success');
+            },
+
+            importData() {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = '.json';
+                input.onchange = (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        try {
+                            const data = JSON.parse(e.target.result);
+                            
+                            if (confirm('⚠️ Cette action remplacera toutes vos données actuelles. Continuer ?')) {
+                                this.state.tasks = data.tasks || [];
+                                this.state.events = data.events || [];
+                                this.state.collaborators = data.collaborators || [];
+                                this.state.notifications = data.notifications || [];
+                                
+                                this.updateAllViews();
+                                this.saveDataToServer();
+                                this.showStatus('📥 Données importées avec succès', 'success');
+                            }
+                        } catch (error) {
+                            this.showStatus('❌ Erreur lors de l\'importation: fichier invalide', 'error');
+                            console.error('Import error:', error);
+                        }
+                    };
+                    reader.readAsText(file);
+                };
+                input.click();
+            },
+
+            clearAllData() {
+                if (!confirm('⚠️ Êtes-vous sûr de vouloir effacer TOUTES les données ?\n\nCette action est irréversible !')) {
+                    return;
                 }
                 
-                // Ctrl/Cmd + E = Nouvel événement
-                if ((e.ctrlKey || e.metaKey) && e.key === 'e') {
-                    e.preventDefault();
-                    this.showEventModal();
+                if (!confirm('🚨 CONFIRMATION FINALE: Toutes vos tâches, événements, collaborateurs et notifications seront supprimés définitivement.\n\nContinuer ?')) {
+                    return;
                 }
                 
-                // Échap = Fermer les modales
-                if (e.key === 'Escape') {
-                    document.querySelectorAll('.modal.show').forEach(modal => {
-                        modal.classList.remove('show');
+                this.state.tasks = [];
+                this.state.events = [];
+                this.state.collaborators = [];
+                this.state.notifications = [];
+                
+                this.updateAllViews();
+                this.saveDataToServer();
+                this.showStatus('🗑️ Toutes les données ont été effacées', 'success');
+            },
+
+            showStatus(message, type = 'info') {
+                const indicator = document.getElementById('status-indicator');
+                if (indicator) {
+                    indicator.className = `status-indicator ${type} show`;
+                    indicator.textContent = message;
+                    
+                    // Auto-masquer après 3 secondes
+                    setTimeout(() => {
+                        indicator.classList.remove('show');
+                    }, 3000);
+                }
+            },
+
+            requestNotificationPermission() {
+                if ('Notification' in window) {
+                    Notification.requestPermission().then(permission => {
+                        if (permission === 'granted') {
+                            this.showStatus('🔔 Notifications activées', 'success');
+                        } else {
+                            this.showStatus('🔔 Notifications refusées', 'error');
+                        }
                     });
+                } else {
+                    this.showStatus('🔔 Notifications non supportées par ce navigateur', 'error');
                 }
-            });
-        },
+            },
 
-        getProductivityStats() {
-            const now = new Date();
-            const lastWeek = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-            
-            const stats = {
-                tasksCompletedThisWeek: this.state.tasks.filter(task => 
-                    task.status === 'done' && 
-                    new Date(task.createdAt) >= lastWeek
-                ).length,
-                
-                overdueTasks: this.state.tasks.filter(task => 
-                    task.dueDate && 
-                    new Date(task.dueDate) < now && 
-                    task.status !== 'done'
-                ).length,
-                
-                tasksByPriority: {
-                    high: this.state.tasks.filter(t => t.priority === 'high').length,
-                    medium: this.state.tasks.filter(t => t.priority === 'medium').length,
-                    low: this.state.tasks.filter(t => t.priority === 'low').length
-                },
-                
-                completionRate: this.state.tasks.length > 0 
-                    ? Math.round((this.state.tasks.filter(t => t.status === 'done').length / this.state.tasks.length) * 100)
-                    : 0
-            };
-            
-            return stats;
-        },
+            testNotification() {
+                if ('Notification' in window && Notification.permission === 'granted') {
+                    new Notification('WorkSpace Test', {
+                        body: 'Ceci est une notification de test de WorkSpace',
+                        icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🚀</text></svg>'
+                    });
+                    this.showStatus('🧪 Notification de test envoyée', 'success');
+                } else {
+                    this.showStatus('🔔 Veuillez d\'abord autoriser les notifications', 'error');
+                }
+            },
 
-        toggleDarkMode() {
-            document.body.classList.toggle('dark-mode');
-            const isDark = document.body.classList.contains('dark-mode');
-            localStorage.setItem('workspace-dark-mode', isDark);
-            this.showStatus(`🌙 Mode ${isDark ? 'sombre' : 'clair'} activé`, 'success');
-        },
+            getColorForPriority(priority) {
+                const colors = {
+                    'low': '#10b981',
+                    'medium': '#f59e0b',
+                    'high': '#ef4444'
+                };
+                return colors[priority] || '#3b82f6';
+            },
 
-        initializeDarkMode() {
-            const savedDarkMode = localStorage.getItem('workspace-dark-mode') === 'true';
-            if (savedDarkMode) {
-                document.body.classList.add('dark-mode');
+            getPriorityLabel(priority) {
+                const labels = {
+                    'low': 'Basse',
+                    'medium': 'Moyenne',
+                    'high': 'Haute'
+                };
+                return labels[priority] || priority;
+            },
+
+            getStatusLabel(status) {
+                const labels = {
+                    'todo': 'À Faire',
+                    'progress': 'En Cours',
+                    'review': 'En Révision',
+                    'done': 'Terminé'
+                };
+                return labels[status] || status;
+            },
+
+            getRandomEmoji() {
+                return this.emojiList[Math.floor(Math.random() * this.emojiList.length)];
+            },
+
+            darkenColor(color, percent) {
+                // Fonction simple pour assombrir une couleur
+                const num = parseInt(color.replace("#", ""), 16);
+                const amt = Math.round(2.55 * percent);
+                const R = (num >> 16) - amt;
+                const G = (num >> 8 & 0x00FF) - amt;
+                const B = (num & 0x0000FF) - amt;
+                return "#" + (0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 +
+                    (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 +
+                    (B < 255 ? B < 1 ? 0 : B : 255)).toString(16).slice(1);
+            },
+
+            getTimeAgo(date) {
+                const now = new Date();
+                const diffInMinutes = Math.floor((now - new Date(date)) / (1000 * 60));
+                
+                if (diffInMinutes < 1) return 'À l\'instant';
+                if (diffInMinutes < 60) return `${diffInMinutes} min`;
+                
+                const diffInHours = Math.floor(diffInMinutes / 60);
+                if (diffInHours < 24) return `${diffInHours}h`;
+                
+                const diffInDays = Math.floor(diffInHours / 24);
+                if (diffInDays < 7) return `${diffInDays}j`;
+                
+                return new Date(date).toLocaleDateString('fr-FR');
             }
-        }
-    };
+        };
 
-    // ========================================
-    // INITIALISATION AUTOMATIQUE
-    // ========================================
+        // ========================================
+        // INITIALISATION AUTOMATIQUE
+        // ========================================
 
-    document.addEventListener('DOMContentLoaded', () => {
-        console.log('🚀 Démarrage de WorkSpace v2.0...');
-        
-        // Initialiser l'application
-        App.init();
-        
-        // Initialiser les fonctionnalités supplémentaires
-        App.initializeKeyboardShortcuts();
-        App.initializeDarkMode();
-        
-        // Ajouter le drag & drop après le rendu initial
-        setTimeout(() => {
-            App.initializeDragAndDrop();
-        }, 1000);
-        
-        console.log('✅ WorkSpace v2.0 prêt à l\'utilisation!');
-        console.log('💡 Raccourcis disponibles:');
-        console.log('   - Ctrl/Cmd + N : Nouvelle tâche');
-        console.log('   - Ctrl/Cmd + E : Nouvel événement');
-        console.log('   - Échap : Fermer les modales');
-        console.log('📱 Pour connecter votre serveur Render.com, allez dans Paramètres');
-    });
-
-    // ========================================
-    // CSS MODE SOMBRE
-    // ========================================
-
-    const darkModeCSS = `
-        .dark-mode {
-            --bg-primary: #1e293b;
-            --bg-secondary: #0f172a;
-            --text-primary: #f1f5f9;
-            --text-secondary: #cbd5e1;
-            --text-muted: #64748b;
-            --border-color: #334155;
-        }
-        
-        .dark-mode .sidebar {
-            background: var(--bg-primary);
-            border-right-color: var(--border-color);
-        }
-        
-        .dark-mode .task-card {
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-        }
-        
-        .dark-mode .task-card:hover {
-            background: var(--bg-primary);
-        }
-    `;
-
-    // Ajouter le CSS du mode sombre
-    const styleSheet = document.createElement('style');
-    styleSheet.textContent = darkModeCSS;
-    document.head.appendChild(styleSheet);
-</script>
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🚀 Démarrage de WorkSpace v3.0 avec Email...');
+            
+            // Initialiser l'application
+            App.init();
+            
+            console.log('✅ WorkSpace v3.0 prêt à l\'utilisation!');
+            console.log('💡 Nouvelles fonctionnalités:');
+            console.log('   - 📧 Notifications email avec Nodemailer');
+            console.log('   - 👥 Assignation de tâches aux collaborateurs');
+            console.log('   - 🎯 Invitation à des événements');
+            console.log('   - 🔔 Notifications en temps réel');
+            console.log('📱 Configurez votre serveur email dans Paramètres');
+        });
+    </script>
 </body>
 </html>
