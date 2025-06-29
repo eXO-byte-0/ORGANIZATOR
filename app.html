@@ -1,0 +1,2875 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WorkSpace - Gestion de Projets Moderne</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary-color: #f8fafc;
+            --accent-color: #10b981;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --text-muted: #94a3b8;
+            --border-color: #e2e8f0;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f1f5f9;
+            --bg-dark: #0f172a;
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            --border-radius: 12px;
+            --border-radius-lg: 16px;
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, #e0e7ff 100%);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* === SIDEBAR === */
+        .sidebar {
+            width: 280px;
+            background: var(--bg-primary);
+            border-right: 1px solid var(--border-color);
+            padding: 24px;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 32px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 4px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            text-decoration: none;
+            color: var(--text-secondary);
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+            cursor: pointer;
+            font-weight: 500;
+            position: relative;
+        }
+
+        .nav-link:hover {
+            background: var(--secondary-color);
+            color: var(--primary-color);
+            transform: translateX(4px);
+        }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            box-shadow: var(--shadow);
+        }
+
+        .nav-link.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 20px;
+            background: white;
+            border-radius: 2px;
+        }
+
+        /* === MAIN CONTENT === */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 24px;
+            min-height: 100vh;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            background: var(--bg-primary);
+            padding: 24px 32px;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+        }
+
+        .page-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* === BUTTONS === */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            box-shadow: var(--shadow);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-primary);
+            border-color: var(--primary-color);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger-color), #dc2626);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--accent-color), #059669);
+            color: white;
+        }
+
+        /* === VIEWS === */
+        .view-content {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .view-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* === DASHBOARD === */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: var(--bg-primary);
+            padding: 28px;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow);
+            border-left: 5px solid var(--primary-color);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, var(--primary-color)20, transparent);
+            border-radius: 50%;
+            transform: translate(30px, -30px);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 15px;
+        }
+
+        /* === KANBAN === */
+        .kanban-board {
+            display: flex;
+            gap: 24px;
+            overflow-x: auto;
+            padding-bottom: 20px;
+            min-height: 600px;
+        }
+
+        .kanban-column {
+            min-width: 320px;
+            background: var(--bg-primary);
+            border-radius: var(--border-radius-lg);
+            padding: 24px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .kanban-column:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .column-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .column-title {
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--text-primary);
+        }
+
+        .task-count {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            min-width: 24px;
+            text-align: center;
+        }
+
+        .task-card {
+            background: var(--bg-secondary);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 16px;
+            cursor: move;
+            transition: var(--transition);
+            border-left: 4px solid var(--accent-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .task-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+            transform: scaleX(0);
+            transition: var(--transition);
+        }
+
+        .task-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            background: var(--bg-primary);
+        }
+
+        .task-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .task-title {
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+            font-size: 15px;
+            line-height: 1.4;
+        }
+
+        .task-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .priority {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .priority-high {
+            background: linear-gradient(135deg, #fee2e2, #fecaca);
+            color: #dc2626;
+        }
+
+        .priority-medium {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            color: #d97706;
+        }
+
+        .priority-low {
+            background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+            color: #16a34a;
+        }
+
+        /* === TIMELINE === */
+        .timeline-container {
+            background: var(--bg-primary);
+            border-radius: var(--border-radius-lg);
+            padding: 32px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
+        .timeline-filters {
+            display: flex;
+            gap: 8px;
+            background: var(--bg-secondary);
+            padding: 4px;
+            border-radius: var(--border-radius);
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: var(--transition);
+            color: var(--text-secondary);
+        }
+
+        .filter-btn.active {
+            background: var(--primary-color);
+            color: white;
+            box-shadow: var(--shadow);
+        }
+
+        .timeline-scroll {
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding-bottom: 20px;
+        }
+
+        .timeline-track {
+            position: relative;
+            min-width: 2400px;
+            height: 400px;
+            background: linear-gradient(135deg, var(--bg-secondary), #e0e7ff);
+            border-radius: var(--border-radius);
+            padding: 20px 0;
+        }
+
+        .timeline-task {
+            position: absolute;
+            background: var(--bg-primary);
+            border-radius: var(--border-radius);
+            padding: 16px;
+            min-width: 200px;
+            max-width: 300px;
+            cursor: pointer;
+            transition: var(--transition);
+            border-left: 4px solid var(--primary-color);
+            box-shadow: var(--shadow);
+        }
+
+        .timeline-task:hover {
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-xl);
+            z-index: 10;
+        }
+
+        /* === CALENDAR === */
+        .calendar-container {
+            background: var(--bg-primary);
+            border-radius: var(--border-radius-lg);
+            padding: 32px;
+            box-shadow: var(--shadow);
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
+        .calendar-nav {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+            background: var(--border-color);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+
+        .calendar-day {
+            background: var(--bg-primary);
+            padding: 12px 8px;
+            min-height: 120px;
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .calendar-day:hover {
+            background: var(--bg-secondary);
+        }
+
+        .calendar-day.today {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+        }
+
+        .calendar-day.other-month {
+            background: var(--bg-secondary);
+            color: var(--text-muted);
+        }
+
+        /* === NOTIFICATIONS === */
+        .notification-badge {
+            background: linear-gradient(135deg, var(--danger-color), #dc2626);
+            color: white;
+            border-radius: 50%;
+            padding: 2px 8px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-left: 8px;
+            min-width: 20px;
+            text-align: center;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .notifications-container {
+            background: var(--bg-primary);
+            border-radius: var(--border-radius-lg);
+            padding: 32px;
+            box-shadow: var(--shadow);
+        }
+
+        .notification-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            transition: var(--transition);
+            border-radius: var(--border-radius);
+            margin-bottom: 8px;
+        }
+
+        .notification-item:hover {
+            background: var(--bg-secondary);
+            transform: translateX(4px);
+        }
+
+        .notification-item.unread {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border-left: 4px solid var(--primary-color);
+        }
+
+        /* === MODALS === */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal.show {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .modal-content {
+            background: var(--bg-primary);
+            border-radius: var(--border-radius-lg);
+            padding: 32px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: var(--shadow-xl);
+            transform: scale(0.9);
+            animation: modalSlideIn 0.3s ease-out forwards;
+        }
+
+        @keyframes modalSlideIn {
+            to {
+                transform: scale(1);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            padding: 4px;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .close-btn:hover {
+            background: var(--bg-secondary);
+            color: var(--danger-color);
+        }
+
+        /* === FORMS === */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: var(--border-radius);
+            font-size: 14px;
+            transition: var(--transition);
+            background: var(--bg-primary);
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* === STATUS INDICATOR === */
+        .status-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            font-size: 14px;
+            z-index: 1001;
+            transform: translateX(400px);
+            transition: var(--transition);
+        }
+
+        .status-indicator.show {
+            transform: translateX(0);
+        }
+
+        .status-indicator.success {
+            background: linear-gradient(135deg, var(--accent-color), #059669);
+            color: white;
+        }
+
+        .status-indicator.error {
+            background: linear-gradient(135deg, var(--danger-color), #dc2626);
+            color: white;
+        }
+
+        .status-indicator.info {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+        }
+
+        /* === RESPONSIVE === */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: var(--transition);
+                z-index: 1002;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 16px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .page-title {
+                font-size: 24px;
+            }
+
+            .kanban-board {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .kanban-column {
+                min-width: auto;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .modal-content {
+                margin: 20px;
+                width: calc(100% - 40px);
+                padding: 24px;
+            }
+        }
+
+        /* === LOADING === */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* === CONNECTION STATUS === */
+        .connection-status {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 1001;
+        }
+
+        .connection-status.connected {
+            background: linear-gradient(135deg, var(--accent-color), #059669);
+            color: white;
+        }
+
+        .connection-status.disconnected {
+            background: linear-gradient(135deg, var(--danger-color), #dc2626);
+            color: white;
+        }
+
+        .connection-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+            animation: pulse 2s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                🚀 WorkSpace
+            </div>
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-view="dashboard">
+                            📊 Tableau de Bord
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-view="kanban">
+                            📋 Kanban
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-view="timeline">
+                            📈 Timeline
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-view="calendar">
+                            📅 Calendrier
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-view="events">
+                            🎯 Événements
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-view="collaborators">
+                            👥 Équipe
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-view="notifications">
+                            🔔 Notifications
+                            <span class="notification-badge" id="notification-badge" style="display: none;">0</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-view="settings">
+                            ⚙️ Paramètres
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard View -->
+            <div class="view-content active" id="dashboard">
+                <div class="header">
+                    <h1 class="page-title">Tableau de Bord</h1>
+                    <button class="btn btn-primary" onclick="App.showTaskModal()">
+                        ✨ Nouvelle Tâche
+                    </button>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="total-tasks">0</div>
+                        <div class="stat-label">Tâches Totales</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="completed-tasks">0</div>
+                        <div class="stat-label">Tâches Terminées</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="pending-tasks">0</div>
+                        <div class="stat-label">En Cours</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="upcoming-events">0</div>
+                        <div class="stat-label">Événements à Venir</div>
+                    </div>
+                </div>
+
+                <div style="background: var(--bg-primary); border-radius: var(--border-radius-lg); padding: 32px; box-shadow: var(--shadow);">
+                    <h2 style="margin-bottom: 24px; color: var(--text-primary);">Activité Récente</h2>
+                    <div id="recent-tasks"></div>
+                </div>
+            </div>
+
+            <!-- Kanban View -->
+            <div class="view-content" id="kanban">
+                <div class="header">
+                    <h1 class="page-title">Tableau Kanban</h1>
+                    <button class="btn btn-primary" onclick="App.showTaskModal()">
+                        ✨ Nouvelle Tâche
+                    </button>
+                </div>
+                
+                <div class="kanban-board" id="kanban-board">
+                    <div class="kanban-column" data-status="todo">
+                        <div class="column-header">
+                            <h3 class="column-title">📝 À Faire</h3>
+                            <span class="task-count">0</span>
+                        </div>
+                        <div class="column-tasks"></div>
+                    </div>
+                    <div class="kanban-column" data-status="progress">
+                        <div class="column-header">
+                            <h3 class="column-title">⚡ En Cours</h3>
+                            <span class="task-count">0</span>
+                        </div>
+                        <div class="column-tasks"></div>
+                    </div>
+                    <div class="kanban-column" data-status="review">
+                        <div class="column-header">
+                            <h3 class="column-title">👀 En Révision</h3>
+                            <span class="task-count">0</span>
+                        </div>
+                        <div class="column-tasks"></div>
+                    </div>
+                    <div class="kanban-column" data-status="done">
+                        <div class="column-header">
+                            <h3 class="column-title">✅ Terminé</h3>
+                            <span class="task-count">0</span>
+                        </div>
+                        <div class="column-tasks"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timeline View -->
+            <div class="view-content" id="timeline">
+                <div class="header">
+                    <h1 class="page-title">Timeline des Projets</h1>
+                    <button class="btn btn-primary" onclick="App.showTaskModal()">
+                        ✨ Nouvelle Tâche
+                    </button>
+                </div>
+                
+                <div class="timeline-container">
+                    <div class="timeline-header">
+                        <h3 style="color: var(--text-primary);">Vue Chronologique</h3>
+                        <div class="timeline-filters">
+                            <button class="filter-btn active" data-filter="all">Toutes</button>
+                            <button class="filter-btn" data-filter="todo">À Faire</button>
+                            <button class="filter-btn" data-filter="progress">En Cours</button>
+                            <button class="filter-btn" data-filter="review">En Révision</button>
+                        </div>
+                    </div>
+                    <div class="timeline-scroll">
+                        <div class="timeline-track" id="timeline-track"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calendar View -->
+            <div class="view-content" id="calendar">
+                <div class="header">
+                    <h1 class="page-title">Calendrier</h1>
+                    <button class="btn btn-primary" onclick="App.showEventModal()">
+                        🎯 Nouvel Événement
+                    </button>
+                </div>
+                
+                <div class="calendar-container">
+                    <div class="calendar-header">
+                        <h2 id="calendar-month-year" style="color: var(--text-primary);"></h2>
+                        <div class="calendar-nav">
+                            <button class="btn btn-secondary" onclick="App.previousMonth()">‹</button>
+                            <button class="btn btn-secondary" onclick="App.nextMonth()">›</button>
+                            <button class="btn btn-primary" onclick="App.goToToday()">Aujourd'hui</button>
+                        </div>
+                    </div>
+                    <div class="calendar-grid" id="calendar-grid"></div>
+                </div>
+            </div>
+
+            <!-- Events View -->
+            <div class="view-content" id="events">
+                <div class="header">
+                    <h1 class="page-title">Événements</h1>
+                    <button class="btn btn-primary" onclick="App.showEventModal()">
+                        🎯 Nouvel Événement
+                    </button>
+                </div>
+                
+                <div style="background: var(--bg-primary); border-radius: var(--border-radius-lg); padding: 32px; box-shadow: var(--shadow);">
+                    <div id="events-list"></div>
+                </div>
+            </div>
+
+            <!-- Collaborators View -->
+            <div class="view-content" id="collaborators">
+                <div class="header">
+                    <h1 class="page-title">Équipe</h1>
+                    <button class="btn btn-primary" onclick="App.showCollaboratorModal()">
+                        👤 Nouveau Membre
+                    </button>
+                </div>
+                
+                <div class="stats-grid" id="collaborators-grid"></div>
+            </div>
+
+            <!-- Notifications View -->
+            <div class="view-content" id="notifications">
+                <div class="header">
+                    <h1 class="page-title">Notifications</h1>
+                    <button class="btn btn-secondary" onclick="App.markAllAsRead()">
+                        ✅ Tout marquer comme lu
+                    </button>
+                </div>
+                
+                <div class="notifications-container">
+                    <div style="display: flex; gap: 12px; margin-bottom: 32px; flex-wrap: wrap;">
+                        <button class="filter-btn active" data-filter="all">Toutes</button>
+                        <button class="filter-btn" data-filter="unread">Non lues</button>
+                        <button class="filter-btn" data-filter="task-assigned">Assignations</button>
+                        <button class="filter-btn" data-filter="task-updated">Mises à jour</button>
+                    </div>
+                    <div id="notifications-list"></div>
+                </div>
+            </div>
+
+            <!-- Settings View -->
+            <div class="view-content" id="settings">
+                <div class="header">
+                    <h1 class="page-title">Paramètres</h1>
+                </div>
+                
+                <div style="background: var(--bg-primary); padding: 32px; border-radius: var(--border-radius-lg); box-shadow: var(--shadow);">
+                    <div style="margin-bottom: 40px;">
+                        <h3 style="margin-bottom: 20px; color: var(--text-primary);">🔔 Notifications</h3>
+                        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                            <button class="btn btn-primary" onclick="App.requestNotificationPermission()">
+                                🔔 Activer les Notifications
+                            </button>
+                            <button class="btn btn-secondary" onclick="App.testNotification()">
+                                🧪 Tester une Notification
+                            </button>
+                        </div>
+                        <p style="font-size: 13px; color: var(--text-secondary); margin-top: 8px;">
+                            🔔 Recevez des alertes en temps réel pour les nouvelles tâches et mises à jour
+                        </p>
+                    </div>
+                    
+                    <div style="margin-bottom: 40px;">
+                        <h3 style="margin-bottom: 20px; color: var(--text-primary);">🌈 Thème de l'Application</h3>
+                        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                            <div class="color-option" style="width: 40px; height: 40px; background: #2563eb; border-radius: 50%; cursor: pointer; border: 3px solid transparent;" onclick="App.changeTheme('#2563eb')" title="Bleu"></div>
+                            <div class="color-option" style="width: 40px; height: 40px; background: #10b981; border-radius: 50%; cursor: pointer; border: 3px solid transparent;" onclick="App.changeTheme('#10b981')" title="Vert"></div>
+                            <div class="color-option" style="width: 40px; height: 40px; background: #f59e0b; border-radius: 50%; cursor: pointer; border: 3px solid transparent;" onclick="App.changeTheme('#f59e0b')" title="Orange"></div>
+                            <div class="color-option" style="width: 40px; height: 40px; background: #ef4444; border-radius: 50%; cursor: pointer; border: 3px solid transparent;" onclick="App.changeTheme('#ef4444')" title="Rouge"></div>
+                            <div class="color-option" style="width: 40px; height: 40px; background: #8b5cf6; border-radius: 50%; cursor: pointer; border: 3px solid transparent;" onclick="App.changeTheme('#8b5cf6')" title="Violet"></div>
+                            <div class="color-option" style="width: 40px; height: 40px; background: #06b6d4; border-radius: 50%; cursor: pointer; border: 3px solid transparent;" onclick="App.changeTheme('#06b6d4')" title="Cyan"></div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 40px;">
+                        <h3 style="margin-bottom: 20px; color: var(--text-primary);">🚀 Configuration Serveur Render.com</h3>
+                        <div class="form-group">
+                            <label class="form-label">URL du serveur Render.com</label>
+                            <input type="text" class="form-input" id="server-url-input" 
+                                   placeholder="https://workspace-xxx.onrender.com" 
+                                   value="" 
+                                   onchange="App.updateServerUrl(this.value)">
+                            <p style="font-size: 13px; color: var(--text-secondary); margin-top: 8px;">
+                                📡 Entrez l'URL de votre serveur Render.com (port 10000 automatiquement géré)
+                            </p>
+                        </div>
+                        
+                        <div style="background: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; padding: 16px; margin: 16px 0;">
+                            <strong style="color: #d97706;">💡 Pour LiveServer :</strong>
+                            <ul style="margin: 8px 0 0 20px; color: #92400e;">
+                                <li>Utilisez "Go Live" dans VSCode</li>
+                                <li>URL Render.com : <code>https://votre-app.onrender.com</code></li>
+                                <li>Port 10000 géré automatiquement</li>
+                                <li>CORS configuré pour localhost</li>
+                            </ul>
+                        </div>
+                        
+                        <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 20px;">
+                            <button class="btn btn-primary" onclick="App.testConnection()">
+                                🔍 Tester la Connexion
+                            </button>
+                            <button class="btn btn-success" onclick="App.syncData()">
+                                🔄 Synchroniser
+                            </button>
+                            <button class="btn btn-secondary" onclick="App.showDebugInfo()">
+                                🐛 Debug Connexion
+                            </button>
+                            <button class="btn btn-secondary" onclick="App.testCorsSpecific()">
+                                🧪 Test CORS
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 40px;">
+                        <h3 style="margin-bottom: 20px; color: var(--text-primary);">👤 Utilisateur Actuel</h3>
+                        <div class="form-group">
+                            <select class="form-select" id="current-user-select" onchange="App.changeCurrentUser(this.value)">
+                                <option value="">Sélectionner un membre de l'équipe...</option>
+                            </select>
+                            <p style="font-size: 13px; color: var(--text-secondary); margin-top: 8px;">
+                                🎯 Choisissez quel membre de l'équipe vous êtes pour recevoir les bonnes notifications
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 style="margin-bottom: 20px; color: var(--text-primary);">🗂️ Gestion des Données</h3>
+                        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                            <button class="btn btn-secondary" onclick="App.exportData()">
+                                📤 Exporter
+                            </button>
+                            <button class="btn btn-secondary" onclick="App.importData()">
+                                📥 Importer
+                            </button>
+                            <button class="btn btn-danger" onclick="App.clearAllData()">
+                                🗑️ Tout Effacer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Status Indicator -->
+    <div class="status-indicator" id="status-indicator"></div>
+
+    <!-- Connection Status -->
+    <div class="connection-status disconnected" id="connection-status">
+        <div class="connection-dot"></div>
+        <span>Déconnecté</span>
+    </div>
+
+    <!-- Task Modal -->
+    <div class="modal" id="task-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">✨ Nouvelle Tâche</h2>
+                <button class="close-btn" onclick="App.closeModal('task-modal')">&times;</button>
+            </div>
+            <form id="task-form">
+                <div class="form-group">
+                    <label class="form-label">Titre *</label>
+                    <input type="text" class="form-input" name="title" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-textarea" name="description" placeholder="Décrivez votre tâche..."></textarea>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="form-group">
+                        <label class="form-label">Statut</label>
+                        <select class="form-select" name="status">
+                            <option value="todo">📝 À Faire</option>
+                            <option value="progress">⚡ En Cours</option>
+                            <option value="review">👀 En Révision</option>
+                            <option value="done">✅ Terminé</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Priorité</label>
+                        <select class="form-select" name="priority">
+                            <option value="low">🟢 Basse</option>
+                            <option value="medium">🟡 Moyenne</option>
+                            <option value="high">🔴 Haute</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="form-group">
+                        <label class="form-label">Date de début</label>
+                        <input type="date" class="form-input" name="startDate">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Date d'échéance</label>
+                        <input type="date" class="form-input" name="dueDate">
+                    </div>
+                </div>
+                <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 32px;">
+                    <button type="button" class="btn btn-secondary" onclick="App.closeModal('task-modal')">Annuler</button>
+                    <button type="submit" class="btn btn-primary">
+                        <span class="loading" style="display: none;"></span>
+                        Créer la Tâche
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Event Modal -->
+    <div class="modal" id="event-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">🎯 Nouvel Événement</h2>
+                <button class="close-btn" onclick="App.closeModal('event-modal')">&times;</button>
+            </div>
+            <form id="event-form">
+                <div class="form-group">
+                    <label class="form-label">Titre *</label>
+                    <input type="text" class="form-input" name="title" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-textarea" name="description" placeholder="Décrivez votre événement..."></textarea>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="form-group">
+                        <label class="form-label">Date *</label>
+                        <input type="date" class="form-input" name="date" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Heure</label>
+                        <input type="time" class="form-input" name="time">
+                    </div>
+                </div>
+                <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 32px;">
+                    <button type="button" class="btn btn-secondary" onclick="App.closeModal('event-modal')">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Créer l'Événement</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Collaborator Modal -->
+    <div class="modal" id="collaborator-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">👤 Nouveau Membre</h2>
+                <button class="close-btn" onclick="App.closeModal('collaborator-modal')">&times;</button>
+            </div>
+            <form id="collaborator-form">
+                <div class="form-group">
+                    <label class="form-label">Nom *</label>
+                    <input type="text" class="form-input" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Rôle</label>
+                    <input type="text" class="form-input" name="role" placeholder="Ex: Développeur, Designer...">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-input" name="email">
+                </div>
+                <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 32px;">
+                    <button type="button" class="btn btn-secondary" onclick="App.closeModal('collaborator-modal')">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Ajouter à l'Équipe</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // ========================================
+        // APPLICATION WORKSPACE - VERSION 2.0
+        // ========================================
+
+        const App = {
+            // Configuration
+            config: {
+                serverUrl: 'https://your-app-name.onrender.com',
+                currentUserId: 1,
+                autoSave: true,
+                debug: true
+            },
+
+            // État de l'application
+            state: {
+                tasks: [],
+                events: [],
+                collaborators: [],
+                notifications: [],
+                currentDate: new Date(),
+                editingTaskId: null,
+                editingEventId: null,
+                editingCollaboratorId: null,
+                timelineFilter: 'all',
+                notificationFilter: 'all',
+                isConnected: false
+            },
+
+            // ========================================
+            // INITIALISATION
+            // ========================================
+
+            init() {
+                console.log('🚀 Initialisation de WorkSpace...');
+                
+                this.loadConfig();
+                this.addSampleData();
+                this.setupEventListeners();
+                this.initializeNavigation();
+                this.initializeCalendar();
+                this.checkConnection();
+                this.updateAllViews();
+                this.startPeriodicSync();
+                
+                this.showStatus('✅ WorkSpace initialisé avec succès!', 'success');
+                console.log('✅ WorkSpace prêt!');
+            },
+
+            loadConfig() {
+                // Charger la configuration depuis le localStorage
+                const savedUrl = localStorage.getItem('workspace-server-url');
+                const savedUser = localStorage.getItem('workspace-current-user');
+                
+                if (savedUrl) {
+                    this.config.serverUrl = savedUrl;
+                    const input = document.getElementById('server-url-input');
+                    if (input) input.value = savedUrl;
+                }
+                
+                if (savedUser) {
+                    this.config.currentUserId = parseInt(savedUser);
+                }
+            },
+
+            addSampleData() {
+                // Collaborateurs d'exemple
+                this.state.collaborators = [
+                    {
+                        id: 1,
+                        name: 'Marie Dubois',
+                        role: 'Chef de Projet',
+                        email: 'marie.dubois@company.com',
+                        emoji: '👩‍💼',
+                        createdAt: new Date()
+                    },
+                    {
+                        id: 2,
+                        name: 'Pierre Martin',
+                        role: 'Développeur Full-Stack',
+                        email: 'pierre.martin@company.com',
+                        emoji: '👨‍💻',
+                        createdAt: new Date()
+                    },
+                    {
+                        id: 3,
+                        name: 'Sophie Leroy',
+                        role: 'UI/UX Designer',
+                        email: 'sophie.leroy@company.com',
+                        emoji: '👩‍🎨',
+                        createdAt: new Date()
+                    },
+                    {
+                        id: 4,
+                        name: 'Alex Chen',
+                        role: 'DevOps Engineer',
+                        email: 'alex.chen@company.com',
+                        emoji: '🧑‍💻',
+                        createdAt: new Date()
+                    }
+                ];
+
+                // Tâches d'exemple
+                this.state.tasks = [
+                    {
+                        id: 1,
+                        title: 'Migration vers Render.com',
+                        description: 'Migrer l\'infrastructure de Heroku vers Render.com pour de meilleures performances',
+                        status: 'progress',
+                        priority: 'high',
+                        startDate: '2025-06-18',
+                        dueDate: '2025-06-25',
+                        color: '#ef4444',
+                        collaborators: [2, 4],
+                        createdAt: new Date()
+                    },
+                    {
+                        id: 2,
+                        title: 'Design System v2.0',
+                        description: 'Création du nouveau système de design avec composants réutilisables',
+                        status: 'review',
+                        priority: 'medium',
+                        startDate: '2025-06-15',
+                        dueDate: '2025-06-30',
+                        color: '#8b5cf6',
+                        collaborators: [3],
+                        createdAt: new Date()
+                    },
+                    {
+                        id: 3,
+                        title: 'API REST Documentation',
+                        description: 'Documenter toutes les routes API avec Swagger/OpenAPI',
+                        status: 'todo',
+                        priority: 'medium',
+                        startDate: '2025-06-20',
+                        dueDate: '2025-06-28',
+                        color: '#10b981',
+                        collaborators: [2],
+                        createdAt: new Date()
+                    },
+                    {
+                        id: 4,
+                        title: 'Tests E2E avec Playwright',
+                        description: 'Mettre en place les tests end-to-end pour assurer la qualité',
+                        status: 'done',
+                        priority: 'high',
+                        startDate: '2025-06-10',
+                        dueDate: '2025-06-17',
+                        color: '#06b6d4',
+                        collaborators: [1, 2],
+                        createdAt: new Date()
+                    }
+                ];
+
+                // Événements d'exemple
+                this.state.events = [
+                    {
+                        id: 1,
+                        title: 'Demo Client - V2.0',
+                        description: 'Présentation de la nouvelle version aux clients',
+                        date: '2025-06-22',
+                        time: '14:00',
+                        createdAt: new Date()
+                    },
+                    {
+                        id: 2,
+                        title: 'Formation Render.com',
+                        description: 'Session de formation sur le déploiement Render.com',
+                        date: '2025-06-25',
+                        time: '10:00',
+                        createdAt: new Date()
+                    }
+                ];
+
+                // Notifications d'exemple
+                this.state.notifications = [
+                    {
+                        id: 1,
+                        collaboratorId: 1,
+                        type: 'task-assigned',
+                        title: 'Nouvelle tâche assignée',
+                        description: 'Vous avez été assigné(e) à "Migration vers Render.com"',
+                        taskId: 1,
+                        isRead: false,
+                        createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000)
+                    },
+                    {
+                        id: 2,
+                        collaboratorId: 2,
+                        type: 'task-updated',
+                        title: 'Tâche mise à jour',
+                        description: 'Le statut de "API REST Documentation" a été modifié',
+                        taskId: 3,
+                        isRead: false,
+                        createdAt: new Date(Date.now() - 4 * 60 * 60 * 1000)
+                    }
+                ];
+            },
+
+            // ========================================
+            // GESTION DES ÉVÉNEMENTS
+            // ========================================
+
+            setupEventListeners() {
+                // Fermeture des modales en cliquant à l'extérieur
+                document.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('modal')) {
+                        e.target.classList.remove('show');
+                    }
+                });
+
+                // Gestion des formulaires
+                this.setupFormHandlers();
+
+                // Filtres timeline
+                document.querySelectorAll('.timeline-filters .filter-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        document.querySelectorAll('.timeline-filters .filter-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        this.state.timelineFilter = btn.dataset.filter;
+                        this.renderTimeline();
+                    });
+                });
+
+                // Filtres notifications
+                document.querySelectorAll('.notifications-container .filter-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        document.querySelectorAll('.notifications-container .filter-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        this.state.notificationFilter = btn.dataset.filter;
+                        this.renderNotifications();
+                    });
+                });
+            },
+
+            setupFormHandlers() {
+                // Formulaire des tâches
+                document.getElementById('task-form').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.handleTaskSubmit(e.target);
+                });
+
+                // Formulaire des événements
+                document.getElementById('event-form').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.handleEventSubmit(e.target);
+                });
+
+                // Formulaire des collaborateurs
+                document.getElementById('collaborator-form').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.handleCollaboratorSubmit(e.target);
+                });
+            },
+
+            // ========================================
+            // NAVIGATION
+            // ========================================
+
+            initializeNavigation() {
+                const navLinks = document.querySelectorAll('.nav-link');
+                const views = document.querySelectorAll('.view-content');
+
+                navLinks.forEach(link => {
+                    link.addEventListener('click', () => {
+                        const targetView = link.dataset.view;
+                        
+                        // Mise à jour des liens actifs
+                        navLinks.forEach(l => l.classList.remove('active'));
+                        link.classList.add('active');
+                        
+                        // Mise à jour des vues
+                        views.forEach(view => view.classList.remove('active'));
+                        document.getElementById(targetView).classList.add('active');
+                        
+                        // Rendu spécifique selon la vue
+                        this.handleViewChange(targetView);
+                    });
+                });
+            },
+
+            handleViewChange(viewName) {
+                switch(viewName) {
+                    case 'dashboard':
+                        this.updateDashboard();
+                        break;
+                    case 'kanban':
+                        this.renderKanban();
+                        break;
+                    case 'timeline':
+                        this.renderTimeline();
+                        break;
+                    case 'calendar':
+                        this.renderCalendar();
+                        break;
+                    case 'events':
+                        this.renderEvents();
+                        break;
+                    case 'collaborators':
+                        this.renderCollaborators();
+                        break;
+                    case 'notifications':
+                        this.renderNotifications();
+                        break;
+                    case 'settings':
+                        this.updateCurrentUserSelect();
+                        break;
+                }
+            },
+
+            // ========================================
+            // API ET SYNCHRONISATION
+            // ========================================
+
+            async makeApiRequest(endpoint, method = 'GET', data = null) {
+                const url = this.config.serverUrl + endpoint;
+                const options = {
+                    method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    },
+                    mode: 'cors',
+                    credentials: 'omit' // Changé de 'include' à 'omit' pour éviter les problèmes CORS
+                };
+
+                if (data) {
+                    options.body = JSON.stringify(data);
+                }
+
+                if (this.config.debug) {
+                    console.log(`🔄 API ${method} ${endpoint}`, data || '');
+                }
+
+                try {
+                    const response = await fetch(url, options);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+
+                    const contentType = response.headers.get('content-type');
+                    const result = contentType?.includes('application/json') 
+                        ? await response.json() 
+                        : await response.text();
+
+                    this.updateConnectionStatus(true);
+                    
+                    if (this.config.debug) {
+                        console.log(`✅ API Response:`, result);
+                    }
+                    
+                    return result;
+                } catch (error) {
+                    console.error(`❌ API Error ${method} ${endpoint}:`, error);
+                    this.updateConnectionStatus(false);
+                    
+                    if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+                        this.showStatus('❌ Erreur CORS - Vérifiez la configuration du serveur', 'error');
+                    } else if (error.message.includes('CORS')) {
+                        this.showStatus('❌ Problème CORS - Le serveur doit autoriser votre domaine', 'error');
+                    } else {
+                        this.showStatus(`❌ Erreur serveur: ${error.message}`, 'error');
+                    }
+                    
+                    return null;
+                }
+            },
+
+            async checkConnection() {
+                const result = await this.makeApiRequest('/api/ping');
+                if (result) {
+                    this.showStatus('🟢 Connecté au serveur', 'success');
+                    this.loadDataFromServer();
+                } else {
+                    this.showStatus('🔴 Serveur non disponible - Mode hors ligne', 'error');
+                }
+            },
+
+            async loadDataFromServer() {
+                const data = await this.makeApiRequest('/api/data');
+                if (data) {
+                    this.state.tasks = data.tasks || this.state.tasks;
+                    this.state.events = data.events || this.state.events;
+                    this.state.collaborators = data.collaborators || this.state.collaborators;
+                    this.state.notifications = data.notifications || this.state.notifications;
+                    
+                    this.updateAllViews();
+                    this.showStatus('📥 Données synchronisées', 'success');
+                }
+            },
+
+            async saveDataToServer() {
+                if (!this.config.autoSave) return;
+                
+                const data = {
+                    tasks: this.state.tasks,
+                    events: this.state.events,
+                    collaborators: this.state.collaborators,
+                    notifications: this.state.notifications
+                };
+                
+                const result = await this.makeApiRequest('/api/data', 'POST', data);
+                if (result) {
+                    if (this.config.debug) {
+                        console.log('💾 Données sauvegardées');
+                    }
+                }
+            },
+
+            updateConnectionStatus(isConnected) {
+                this.state.isConnected = isConnected;
+                const statusEl = document.getElementById('connection-status');
+                if (statusEl) {
+                    statusEl.className = `connection-status ${isConnected ? 'connected' : 'disconnected'}`;
+                    statusEl.innerHTML = `
+                        <div class="connection-dot"></div>
+                        <span>${isConnected ? 'Connecté' : 'Déconnecté'}</span>
+                    `;
+                }
+            },
+
+            startPeriodicSync() {
+                // Synchronisation automatique toutes les 30 secondes
+                setInterval(() => {
+                    if (this.state.isConnected) {
+                        this.loadDataFromServer();
+                    }
+                }, 30000);
+            },
+
+            // ========================================
+            // MODALES
+            // ========================================
+
+            showTaskModal(taskId = null) {
+                this.state.editingTaskId = taskId;
+                const modal = document.getElementById('task-modal');
+                const form = document.getElementById('task-form');
+                const title = modal.querySelector('.modal-title');
+                
+                if (taskId) {
+                    const task = this.state.tasks.find(t => t.id === taskId);
+                    title.textContent = '✏️ Modifier la Tâche';
+                    form.title.value = task.title;
+                    form.description.value = task.description;
+                    form.status.value = task.status;
+                    form.priority.value = task.priority;
+                    form.startDate.value = task.startDate || '';
+                    form.dueDate.value = task.dueDate || '';
+                } else {
+                    title.textContent = '✨ Nouvelle Tâche';
+                    form.reset();
+                }
+                
+                modal.classList.add('show');
+            },
+
+            showEventModal(eventId = null) {
+                this.state.editingEventId = eventId;
+                const modal = document.getElementById('event-modal');
+                const form = document.getElementById('event-form');
+                const title = modal.querySelector('.modal-title');
+                
+                if (eventId) {
+                    const event = this.state.events.find(e => e.id === eventId);
+                    title.textContent = '✏️ Modifier l\'Événement';
+                    form.title.value = event.title;
+                    form.description.value = event.description;
+                    form.date.value = event.date;
+                    form.time.value = event.time || '';
+                } else {
+                    title.textContent = '🎯 Nouvel Événement';
+                    form.reset();
+                }
+                
+                modal.classList.add('show');
+            },
+
+            showCollaboratorModal(collaboratorId = null) {
+                this.state.editingCollaboratorId = collaboratorId;
+                const modal = document.getElementById('collaborator-modal');
+                const form = document.getElementById('collaborator-form');
+                const title = modal.querySelector('.modal-title');
+                
+                if (collaboratorId) {
+                    const collaborator = this.state.collaborators.find(c => c.id === collaboratorId);
+                    title.textContent = '✏️ Modifier le Membre';
+                    form.name.value = collaborator.name;
+                    form.role.value = collaborator.role;
+                    form.email.value = collaborator.email;
+                } else {
+                    title.textContent = '👤 Nouveau Membre';
+                    form.reset();
+                }
+                
+                modal.classList.add('show');
+            },
+
+            closeModal(modalId) {
+                document.getElementById(modalId).classList.remove('show');
+                this.state.editingTaskId = null;
+                this.state.editingEventId = null;
+                this.state.editingCollaboratorId = null;
+            },
+
+            // ========================================
+            // GESTION DES FORMULAIRES
+            // ========================================
+
+            async handleTaskSubmit(form) {
+                const formData = new FormData(form);
+                const submitBtn = form.querySelector('button[type="submit"]');
+                const loading = submitBtn.querySelector('.loading');
+                
+                // Animation de chargement
+                loading.style.display = 'inline-block';
+                submitBtn.disabled = true;
+                
+                const task = {
+                    id: this.state.editingTaskId || Date.now(),
+                    title: formData.get('title'),
+                    description: formData.get('description'),
+                    status: formData.get('status'),
+                    priority: formData.get('priority'),
+                    startDate: formData.get('startDate'),
+                    dueDate: formData.get('dueDate'),
+                    color: this.getColorForPriority(formData.get('priority')),
+                    collaborators: [],
+                    createdAt: this.state.editingTaskId 
+                        ? this.state.tasks.find(t => t.id === this.state.editingTaskId).createdAt 
+                        : new Date()
+                };
+
+                if (this.state.editingTaskId) {
+                    const index = this.state.tasks.findIndex(t => t.id === this.state.editingTaskId);
+                    this.state.tasks[index] = task;
+                    this.showStatus('✅ Tâche mise à jour', 'success');
+                } else {
+                    this.state.tasks.push(task);
+                    this.showStatus('✅ Nouvelle tâche créée', 'success');
+                }
+
+                await this.saveDataToServer();
+                this.updateAllViews();
+                this.closeModal('task-modal');
+                
+                // Réinitialiser le bouton
+                loading.style.display = 'none';
+                submitBtn.disabled = false;
+            },
+
+            async handleEventSubmit(form) {
+                const formData = new FormData(form);
+                
+                const event = {
+                    id: this.state.editingEventId || Date.now(),
+                    title: formData.get('title'),
+                    description: formData.get('description'),
+                    date: formData.get('date'),
+                    time: formData.get('time'),
+                    createdAt: this.state.editingEventId 
+                        ? this.state.events.find(e => e.id === this.state.editingEventId).createdAt 
+                        : new Date()
+                };
+
+                if (this.state.editingEventId) {
+                    const index = this.state.events.findIndex(e => e.id === this.state.editingEventId);
+                    this.state.events[index] = event;
+                    this.showStatus('✅ Événement mis à jour', 'success');
+                } else {
+                    this.state.events.push(event);
+                    this.showStatus('✅ Nouvel événement créé', 'success');
+                }
+
+                await this.saveDataToServer();
+                this.updateAllViews();
+                this.closeModal('event-modal');
+            },
+
+            async handleCollaboratorSubmit(form) {
+                const formData = new FormData(form);
+                
+                const collaborator = {
+                    id: this.state.editingCollaboratorId || Date.now(),
+                    name: formData.get('name'),
+                    role: formData.get('role'),
+                    email: formData.get('email'),
+                    emoji: this.getRandomEmoji(),
+                    createdAt: this.state.editingCollaboratorId 
+                        ? this.state.collaborators.find(c => c.id === this.state.editingCollaboratorId).createdAt 
+                        : new Date()
+                };
+
+                if (this.state.editingCollaboratorId) {
+                    const index = this.state.collaborators.findIndex(c => c.id === this.state.editingCollaboratorId);
+                    this.state.collaborators[index] = collaborator;
+                    this.showStatus('✅ Membre mis à jour', 'success');
+                } else {
+                    this.state.collaborators.push(collaborator);
+                    this.showStatus('✅ Nouveau membre ajouté', 'success');
+                }
+
+                await this.saveDataToServer();
+                this.updateAllViews();
+                this.closeModal('collaborator-modal');
+            },
+
+            // ========================================
+            // RENDU DES VUES
+            // ========================================
+
+            updateAllViews() {
+                this.updateDashboard();
+                this.renderKanban();
+                this.renderTimeline();
+                this.renderCalendar();
+                this.renderEvents();
+                this.renderCollaborators();
+                this.renderNotifications();
+                this.updateNotificationBadge();
+            },
+
+            updateDashboard() {
+                const totalTasks = this.state.tasks.length;
+                const completedTasks = this.state.tasks.filter(t => t.status === 'done').length;
+                const pendingTasks = this.state.tasks.filter(t => t.status !== 'done').length;
+                const upcomingEvents = this.state.events.filter(e => new Date(e.date) >= new Date()).length;
+
+                document.getElementById('total-tasks').textContent = totalTasks;
+                document.getElementById('completed-tasks').textContent = completedTasks;
+                document.getElementById('pending-tasks').textContent = pendingTasks;
+                document.getElementById('upcoming-events').textContent = upcomingEvents;
+
+                this.renderRecentTasks();
+            },
+
+            renderRecentTasks() {
+                const container = document.getElementById('recent-tasks');
+                const recentTasks = this.state.tasks.slice(-5).reverse();
+                
+                if (recentTasks.length === 0) {
+                    container.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 40px;">Aucune tâche pour le moment</p>';
+                    return;
+                }
+                
+                const html = recentTasks.map(task => `
+                    <div class="task-card" style="border-left-color: ${task.color}; cursor: pointer;" onclick="App.showTaskModal(${task.id})">
+                        <div class="task-title">${task.title}</div>
+                        <div class="task-meta">
+                            <span class="priority priority-${task.priority}">${this.getPriorityLabel(task.priority)}</span>
+                            <span>${this.getStatusLabel(task.status)}</span>
+                        </div>
+                    </div>
+                `).join('');
+                
+                container.innerHTML = html;
+            },
+
+            renderKanban() {
+                const columns = document.querySelectorAll('.kanban-column');
+                
+                columns.forEach(column => {
+                    const status = column.dataset.status;
+                    const tasksContainer = column.querySelector('.column-tasks');
+                    const countElement = column.querySelector('.task-count');
+                    
+                    const columnTasks = this.state.tasks.filter(task => task.status === status);
+                    countElement.textContent = columnTasks.length;
+                    
+                    const html = columnTasks.map(task => {
+                        const collaboratorsHtml = task.collaborators?.map(colId => {
+                            const collaborator = this.state.collaborators.find(c => c.id === colId);
+                            return collaborator ? `<span style="margin-right: 4px;">${collaborator.emoji}</span>` : '';
+                        }).join('') || '';
+                        
+                        return `
+                            <div class="task-card" data-task-id="${task.id}" style="border-left-color: ${task.color}">
+                                <div class="task-title">${task.title}</div>
+                                <div class="task-meta">
+                                    <span class="priority priority-${task.priority}">${this.getPriorityLabel(task.priority)}</span>
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        ${collaboratorsHtml}
+                                        <button onclick="App.showTaskModal(${task.id})" style="background: none; border: none; cursor: pointer; font-size: 16px;">✏️</button>
+                                        <button onclick="App.deleteTask(${task.id})" style="background: none; border: none; cursor: pointer; font-size: 16px;">🗑️</button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                    
+                    tasksContainer.innerHTML = html;
+                });
+            },
+
+            renderTimeline() {
+                const track = document.getElementById('timeline-track');
+                const filteredTasks = this.state.tasks.filter(task => {
+                    const hasDate = task.dueDate || task.startDate;
+                    const matchesFilter = this.state.timelineFilter === 'all' || task.status === this.state.timelineFilter;
+                    return hasDate && matchesFilter;
+                });
+
+                if (filteredTasks.length === 0) {
+                    track.innerHTML = '<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: var(--text-secondary); font-size: 18px;">📅 Aucune tâche avec dates</div>';
+                    return;
+                }
+
+                // Simulation d'une timeline simple
+                const html = filteredTasks.map((task, index) => `
+                    <div class="timeline-task" style="
+                        left: ${(index * 250) + 50}px;
+                        top: ${80 + (index % 3) * 80}px;
+                        border-left-color: ${task.color};
+                    " onclick="App.showTaskModal(${task.id})">
+                        <div style="font-weight: 600; margin-bottom: 8px;">${task.title}</div>
+                        <div style="font-size: 12px; color: var(--text-secondary);">
+                            ${task.startDate ? new Date(task.startDate).toLocaleDateString('fr-FR') : ''} 
+                            ${task.dueDate ? '→ ' + new Date(task.dueDate).toLocaleDateString('fr-FR') : ''}
+                        </div>
+                        <div style="margin-top: 8px;">
+                            <span class="priority priority-${task.priority}">${this.getPriorityLabel(task.priority)}</span>
+                        </div>
+                    </div>
+                `).join('');
+                
+                track.innerHTML = html;
+            },
+
+            initializeCalendar() {
+                this.renderCalendar();
+            },
+
+            renderCalendar() {
+                const monthNames = [
+                    'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+                    'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
+                ];
+                
+                const monthYear = document.getElementById('calendar-month-year');
+                monthYear.textContent = monthNames[this.state.currentDate.getMonth()] + ' ' + this.state.currentDate.getFullYear();
+                
+                const grid = document.getElementById('calendar-grid');
+                const firstDay = new Date(this.state.currentDate.getFullYear(), this.state.currentDate.getMonth(), 1);
+                const startDate = new Date(firstDay);
+                startDate.setDate(startDate.getDate() - firstDay.getDay());
+                
+                const dayHeaders = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+                let html = '';
+                
+                // En-têtes des jours
+                dayHeaders.forEach(day => {
+                    html += `<div style="background: var(--bg-secondary); padding: 12px; font-weight: 700; text-align: center; color: var(--text-primary);">${day}</div>`;
+                });
+                
+                // Jours du calendrier
+                for (let i = 0; i < 42; i++) {
+                    const date = new Date(startDate);
+                    date.setDate(startDate.getDate() + i);
+                    const dateStr = date.toISOString().split('T')[0];
+                    
+                    const isCurrentMonth = date.getMonth() === this.state.currentDate.getMonth();
+                    const isToday = date.toDateString() === new Date().toDateString();
+                    
+                    const dayEvents = this.state.events.filter(event => event.date === dateStr);
+                    const dayTasks = this.state.tasks.filter(task => {
+                        return task.dueDate === dateStr || task.startDate === dateStr;
+                    });
+                    
+                    let classes = 'calendar-day';
+                    if (!isCurrentMonth) classes += ' other-month';
+                    if (isToday) classes += ' today';
+                    
+                    const eventDots = dayEvents.map(() => '<span class="event-dot"></span>').join('');
+                    const taskItems = dayTasks.slice(0, 2).map(task => 
+                        `<div style="background: ${task.color}; color: white; padding: 2px 6px; margin: 1px 0; border-radius: 3px; font-size: 10px; cursor: pointer;" onclick="App.showTaskModal(${task.id})">${task.title}</div>`
+                    ).join('');
+                    
+                    html += `
+                        <div class="${classes}">
+                            <div style="font-weight: 600; margin-bottom: 4px;">${date.getDate()}</div>
+                            ${eventDots}
+                            ${taskItems}
+                            ${dayTasks.length > 2 ? `<div style="font-size: 10px; color: var(--text-secondary);">+${dayTasks.length - 2} autres</div>` : ''}
+                        </div>
+                    `;
+                }
+                
+                grid.innerHTML = html;
+            },
+
+            renderEvents() {
+                const container = document.getElementById('events-list');
+                const sortedEvents = [...this.state.events].sort((a, b) => new Date(a.date) - new Date(b.date));
+                
+                if (sortedEvents.length === 0) {
+                    container.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 40px;">Aucun événement programmé</p>';
+                    return;
+                }
+                
+                const html = sortedEvents.map(event => {
+                    const eventDate = new Date(event.date);
+                    const formattedDate = eventDate.toLocaleDateString('fr-FR');
+                    const timeDisplay = event.time ? ` à ${event.time}` : '';
+                    
+                    return `
+                        <div class="notification-item" style="cursor: pointer;" onclick="App.showEventModal(${event.id})">
+                            <div style="font-size: 24px;">🎯</div>
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600; margin-bottom: 4px;">${event.title}</div>
+                                <div style="color: var(--text-secondary); font-size: 14px;">${formattedDate}${timeDisplay}</div>
+                                ${event.description ? `<div style="color: var(--text-secondary); font-size: 13px; margin-top: 4px;">${event.description}</div>` : ''}
+                            </div>
+                            <div style="display: flex; gap: 8px;">
+                                <button onclick="event.stopPropagation(); App.showEventModal(${event.id})" style="background: none; border: none; cursor: pointer; font-size: 16px;">✏️</button>
+                                <button onclick="event.stopPropagation(); App.deleteEvent(${event.id})" style="background: none; border: none; cursor: pointer; font-size: 16px;">🗑️</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+                container.innerHTML = html;
+            },
+
+            renderCollaborators() {
+                const grid = document.getElementById('collaborators-grid');
+                
+                if (this.state.collaborators.length === 0) {
+                    grid.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 40px; grid-column: 1 / -1;">Aucun membre dans l\'équipe</p>';
+                    return;
+                }
+                
+                const html = this.state.collaborators.map(collaborator => {
+                    const taskCount = this.state.tasks.filter(task => 
+                        task.collaborators?.includes(collaborator.id)
+                    ).length;
+                    
+                    const completedTasks = this.state.tasks.filter(task => 
+                        task.collaborators?.includes(collaborator.id) && task.status === 'done'
+                    ).length;
+                    
+                    return `
+                        <div class="stat-card" style="text-align: center; cursor: pointer;" onclick="App.showCollaboratorModal(${collaborator.id})">
+                            <div style="font-size: 64px; margin-bottom: 16px;">${collaborator.emoji}</div>
+                            <div style="font-size: 20px; font-weight: 700; margin-bottom: 8px; color: var(--text-primary);">${collaborator.name}</div>
+                            <div style="color: var(--text-secondary); margin-bottom: 16px;">${collaborator.role}</div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding-top: 16px; border-top: 1px solid var(--border-color);">
+                                <div>
+                                    <div style="font-size: 24px; font-weight: 700; color: var(--primary-color);">${taskCount}</div>
+                                    <div style="font-size: 12px; color: var(--text-secondary);">Tâches</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 24px; font-weight: 700; color: var(--accent-color);">${completedTasks}</div>
+                                    <div style="font-size: 12px; color: var(--text-secondary);">Terminées</div>
+                                </div>
+                            </div>
+                            <div style="margin-top: 16px; display: flex; gap: 8px; justify-content: center;">
+                                <button onclick="event.stopPropagation(); App.showCollaboratorModal(${collaborator.id})" style="background: none; border: none; cursor: pointer; font-size: 16px;">✏️</button>
+                                <button onclick="event.stopPropagation(); App.deleteCollaborator(${collaborator.id})" style="background: none; border: none; cursor: pointer; font-size: 16px;">🗑️</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+                grid.innerHTML = html;
+                this.updateCurrentUserSelect();
+            },
+
+            renderNotifications() {
+                const container = document.getElementById('notifications-list');
+                let filteredNotifications = [...this.state.notifications];
+                
+                if (this.state.notificationFilter !== 'all') {
+                    if (this.state.notificationFilter === 'unread') {
+                        filteredNotifications = filteredNotifications.filter(n => !n.isRead);
+                    } else {
+                        filteredNotifications = filteredNotifications.filter(n => n.type === this.state.notificationFilter);
+                    }
+                }
+                
+                filteredNotifications.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                
+                if (filteredNotifications.length === 0) {
+                    container.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 40px;">📭 Aucune notification</div>';
+                    return;
+                }
+                
+                const html = filteredNotifications.map(notification => {
+                    const collaborator = this.state.collaborators.find(c => c.id === notification.collaboratorId);
+                    const timeAgo = this.getTimeAgo(notification.createdAt);
+                    
+                    return `
+                        <div class="notification-item ${notification.isRead ? '' : 'unread'}">
+                            <div style="font-size: 32px;">${collaborator?.emoji || '👤'}</div>
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600; margin-bottom: 4px;">${notification.title}</div>
+                                <div style="color: var(--text-secondary); font-size: 14px; margin-bottom: 8px;">${notification.description}</div>
+                                <div style="color: var(--text-secondary); font-size: 12px;">${timeAgo}</div>
+                            </div>
+                            <div style="display: flex; gap: 8px;">
+                                ${notification.taskId ? `<button onclick="App.viewTask(${notification.taskId})" style="background: none; border: 1px solid var(--border-color); padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px;">Voir la tâche</button>` : ''}
+                                ${!notification.isRead ? `<button onclick="App.markAsRead(${notification.id})" style="background: none; border: 1px solid var(--border-color); padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px;">✓</button>` : ''}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+                container.innerHTML = html;
+            },
+
+            updateNotificationBadge() {
+                const unreadCount = this.state.notifications.filter(n => !n.isRead && n.collaboratorId === this.config.currentUserId).length;
+                const badge = document.getElementById('notification-badge');
+                
+                if (unreadCount > 0) {
+                    badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+                    badge.style.display = 'inline-block';
+                } else {
+                    badge.style.display = 'none';
+                }
+            },
+
+            // ========================================
+            // ACTIONS
+            // ========================================
+
+            async deleteTask(taskId) {
+                if (!confirm('Êtes-vous sûr de vouloir supprimer cette tâche ?')) return;
+                
+                this.state.tasks = this.state.tasks.filter(t => t.id !== taskId);
+                await this.saveDataToServer();
+                this.updateAllViews();
+                this.showStatus('🗑️ Tâche supprimée', 'success');
+            },
+
+            async deleteEvent(eventId) {
+                if (!confirm('Êtes-vous sûr de vouloir supprimer cet événement ?')) return;
+                
+                this.state.events = this.state.events.filter(e => e.id !== eventId);
+                await this.saveDataToServer();
+                this.updateAllViews();
+                this.showStatus('🗑️ Événement supprimé', 'success');
+            },
+
+            async deleteCollaborator(collaboratorId) {
+                if (!confirm('Êtes-vous sûr de vouloir supprimer ce membre ?')) return;
+                
+                // Retirer le collaborateur de toutes les tâches
+                this.state.tasks.forEach(task => {
+                    if (task.collaborators) {
+                        task.collaborators = task.collaborators.filter(id => id !== collaboratorId);
+                    }
+                });
+                
+                this.state.collaborators = this.state.collaborators.filter(c => c.id !== collaboratorId);
+                await this.saveDataToServer();
+                this.updateAllViews();
+                this.showStatus('🗑️ Membre supprimé', 'success');
+            },
+
+            markAsRead(notificationId) {
+                const notification = this.state.notifications.find(n => n.id === notificationId);
+                if (notification) {
+                    notification.isRead = true;
+                    this.renderNotifications();
+                    this.updateNotificationBadge();
+                    this.saveDataToServer();
+                }
+            },
+
+            markAllAsRead() {
+                this.state.notifications.forEach(notification => {
+                    if (notification.collaboratorId === this.config.currentUserId) {
+                        notification.isRead = true;
+                    }
+                });
+                this.renderNotifications();
+                this.updateNotificationBadge();
+                this.saveDataToServer();
+                this.showStatus('✅ Toutes les notifications marquées comme lues', 'success');
+            },
+
+            viewTask(taskId) {
+                // Aller à la vue Kanban et mettre en évidence la tâche
+                document.querySelector('[data-view="kanban"]').click();
+                setTimeout(() => {
+                    const taskCard = document.querySelector(`[data-task-id="${taskId}"]`);
+                    if (taskCard) {
+                        taskCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        taskCard.style.boxShadow = '0 0 20px var(--primary-color)';
+                        setTimeout(() => {
+                            taskCard.style.boxShadow = '';
+                        }, 3000);
+                    }
+                }, 100);
+            },
+
+            // ========================================
+            // CALENDRIER
+            // ========================================
+
+            previousMonth() {
+                this.state.currentDate.setMonth(this.state.currentDate.getMonth() - 1);
+                this.renderCalendar();
+            },
+
+            nextMonth() {
+                this.state.currentDate.setMonth(this.state.currentDate.getMonth() + 1);
+                this.renderCalendar();
+            },
+
+            goToToday() {
+                this.state.currentDate = new Date();
+                this.renderCalendar();
+            },
+
+            // ========================================
+            // PARAMÈTRES
+            // ========================================
+
+            changeTheme(color) {
+                document.documentElement.style.setProperty('--primary-color', color);
+                document.documentElement.style.setProperty('--primary-dark', this.darkenColor(color, 10));
+                
+                // Marquer la couleur comme sélectionnée
+                document.querySelectorAll('.color-option').forEach(option => {
+                    option.style.border = '3px solid transparent';
+                });
+                event.target.style.border = '3px solid var(--text-primary)';
+                
+                this.showStatus('🎨 Thème mis à jour', 'success');
+            },
+
+            updateServerUrl(url) {
+                this.config.serverUrl = url.replace(/\/$/, '');
+                localStorage.setItem('workspace-server-url', this.config.serverUrl);
+                this.showStatus('🔧 URL du serveur mise à jour', 'info');
+            },
+
+            changeCurrentUser(userId) {
+                this.config.currentUserId = parseInt(userId);
+                localStorage.setItem('workspace-current-user', this.config.currentUserId);
+                this.updateNotificationBadge();
+                this.showStatus('👤 Utilisateur actuel mis à jour', 'info');
+            },
+
+            updateCurrentUserSelect() {
+                const select = document.getElementById('current-user-select');
+                if (!select) return;
+                
+                select.innerHTML = '<option value="">Sélectionner un membre...</option>';
+                this.state.collaborators.forEach(collaborator => {
+                    const option = document.createElement('option');
+                    option.value = collaborator.id;
+                    option.textContent = `${collaborator.emoji} ${collaborator.name}`;
+                    if (collaborator.id === this.config.currentUserId) {
+                        option.selected = true;
+                    }
+                    select.appendChild(option);
+                });
+            },
+
+            async testConnection() {
+                if (!this.config.serverUrl || this.config.serverUrl === 'https://your-app-name.onrender.com') {
+                    this.showStatus('⚠️ Veuillez d\'abord configurer l\'URL de votre serveur Render.com', 'error');
+                    return;
+                }
+                
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = '⏳ Test en cours...';
+                btn.disabled = true;
+                
+                console.log('🔍 Test de connexion vers:', this.config.serverUrl);
+                
+                // Test 1: Ping simple
+                console.log('📡 Test 1: Ping du serveur...');
+                let result = await this.makeApiRequest('/api/ping');
+                
+                if (result) {
+                    console.log('✅ Ping réussi:', result);
+                    this.showStatus(`✅ Connexion réussie! Port: ${result.port || 'inconnu'}`, 'success');
+                } else {
+                    // Test 2: Test CORS spécifique
+                    console.log('📡 Test 2: Test CORS spécifique...');
+                    result = await this.makeApiRequest('/api/test-cors');
+                    
+                    if (result) {
+                        console.log('✅ Test CORS réussi:', result);
+                        this.showStatus('✅ CORS configuré correctement!', 'success');
+                    } else {
+                        // Test 3: Accès direct à la racine
+                        console.log('📡 Test 3: Accès racine...');
+                        try {
+                            const response = await fetch(this.config.serverUrl, { mode: 'no-cors' });
+                            console.log('⚠️ Serveur accessible en no-cors, problème CORS détecté');
+                            this.showStatus('⚠️ Serveur accessible mais CORS mal configuré', 'error');
+                        } catch (error) {
+                            console.log('❌ Serveur inaccessible:', error);
+                            this.showStatus('❌ Serveur inaccessible - Vérifiez l\'URL', 'error');
+                        }
+                    }
+                }
+                
+                btn.textContent = originalText;
+                btn.disabled = false;
+                
+                // Afficher les informations de debug
+                this.showDebugConnectionInfo();
+            },
+
+            showDebugConnectionInfo() {
+                console.log('🐛 ========== DEBUG CONNEXION ==========');
+                console.log('🔗 URL Serveur:', this.config.serverUrl);
+                console.log('🌐 Origine actuelle:', window.location.origin);
+                console.log('📍 Protocol:', window.location.protocol);
+                console.log('🏠 Host:', window.location.host);
+                console.log('🔢 Port:', window.location.port || 'défaut');
+                console.log('👤 User Agent:', navigator.userAgent.substring(0, 50) + '...');
+                console.log('🍪 Cookies activés:', navigator.cookieEnabled);
+                console.log('🛡️ Statut connexion:', this.state.isConnected ? 'Connecté' : 'Déconnecté');
+                console.log('🐛 =====================================');
+                
+                // Vérifications automatiques
+                if (window.location.protocol === 'file:') {
+                    console.warn('⚠️ ATTENTION: Vous utilisez file:// - utilisez LiveServer!');
+                    this.showStatus('⚠️ Utilisez LiveServer (Go Live) pour éviter les problèmes CORS', 'error');
+                }
+                
+                if (this.config.serverUrl.includes('localhost') && window.location.origin.includes('localhost')) {
+                    console.log('ℹ️ Connexion localhost à localhost détectée');
+                } else if (this.config.serverUrl.includes('onrender.com') && window.location.origin.includes('localhost')) {
+                    console.log('ℹ️ Connexion LiveServer vers Render.com détectée');
+                    console.log('💡 Astuce: Assurez-vous que le serveur autorise localhost dans CORS');
+                }
+            },
+
+            async syncData() {
+                this.showStatus('🔄 Synchronisation en cours...', 'info');
+                await this.loadDataFromServer();
+            },
+
+            showDebugInfo() {
+                const info = {
+                    'URL Serveur': this.config.serverUrl,
+                    'Utilisateur actuel': this.config.currentUserId,
+                    'Statut connexion': this.state.isConnected ? 'Connecté' : 'Déconnecté',
+                    'Origine': window.location.origin,
+                    'Protocol': window.location.protocol,
+                    'Host': window.location.host,
+                    'Port': window.location.port || 'défaut',
+                    'LiveServer actif': window.location.port === '5500' || window.location.port === '5501' || window.location.port === '5502',
+                    'Nombre de tâches': this.state.tasks.length,
+                    'Nombre d\'événements': this.state.events.length,
+                    'Nombre de collaborateurs': this.state.collaborators.length,
+                    'Notifications non lues': this.state.notifications.filter(n => !n.isRead).length
+                };
+                
+                console.table(info);
+                this.showDebugConnectionInfo();
+                this.showStatus('🐛 Informations de debug affichées dans la console (F12)', 'info');
+            },
+
+            async testCorsSpecific() {
+                if (!this.config.serverUrl) {
+                    this.showStatus('⚠️ Configurez d\'abord l\'URL du serveur', 'error');
+                    return;
+                }
+
+                this.showStatus('🧪 Test CORS en cours...', 'info');
+                
+                try {
+                    const result = await this.makeApiRequest('/api/test-cors');
+                    if (result && result.corsTest === 'SUCCESS') {
+                        this.showStatus('✅ Test CORS réussi!', 'success');
+                        console.log('✅ Résultat test CORS:', result);
+                    } else {
+                        this.showStatus('❌ Test CORS échoué', 'error');
+                        console.log('❌ Échec test CORS:', result);
+                    }
+                } catch (error) {
+                    this.showStatus('❌ Erreur test CORS: ' + error.message, 'error');
+                    console.error('❌ Erreur test CORS:', error);
+                }
+            },
+
+            exportData() {
+                const data = {
+                    tasks: this.state.tasks,
+                    events: this.state.events,
+                    collaborators: this.state.collaborators,
+                    notifications: this.state.notifications,
+                    exportDate: new Date().toISOString()
+                };
+                
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `workspace-backup-${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                this.showStatus('📤 Données exportées avec succès', 'success');
+            },
+
+            importData() {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = '.json';
+                input.onchange = (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        try {
+                            const data = JSON.parse(e.target.result);
+                            
+                            if (confirm('⚠️ Cette action remplacera toutes vos données actuelles. Continuer ?')) {
+                                this.state.tasks = data.tasks || [];
+                                this.state.events = data.events || [];
+                                this.state.collaborators = data.collaborators || [];
+                                this.state.notifications = data.notifications || [];
+                                
+                                this.updateAllViews();
+                                this.saveDataToServer();
+                                this.showStatus('📥 Données importées avec succès', 'success');
+                            }
+                        } catch (error) {
+                            this.showStatus('❌ Erreur lors de l\'importation: fichier invalide', 'error');
+                            console.error('Import error:', error);
+                        }
+                    };
+                    reader.readAsText(file);
+                };
+                input.click();
+            },
+
+            clearAllData() {
+                if (!confirm('⚠️ Êtes-vous sûr de vouloir effacer TOUTES les données ?\n\nCette action est irréversible !')) {
+                    return;
+                }
+                
+                if (!confirm('🚨 CONFIRMATION FINALE: Toutes vos tâches, événements, collaborateurs et notifications seront supprimés définitivement.\n\nContinuer ?')) {
+                    return;
+                }
+                
+                this.state.tasks = [];
+                this.state.events = [];
+                this.state.collaborators = [];
+                this.state.notifications = [];
+                
+                this.updateAllViews();
+                this.saveDataToServer();
+                this.showStatus('🗑️ Toutes les données ont été effacées', 'success');
+            },
+
+            // ========================================
+            // UTILITAIRES
+            // ========================================
+
+            showStatus(message, type = 'info') {
+                const indicator = document.getElementById('status-indicator');
+                indicator.className = `status-indicator ${type} show`;
+                indicator.textContent = message;
+                
+                // Auto-masquer après 3 secondes
+                setTimeout(() => {
+                    indicator.classList.remove('show');
+                }, 3000);
+            },
+
+            getColorForPriority(priority) {
+                const colors = {
+                    'low': '#10b981',
+                    'medium': '#f59e0b',
+                    'high': '#ef4444'
+                };
+                return colors[priority] || '#3b82f6';
+            },
+
+            getPriorityLabel(priority) {
+                const labels = {
+                    'low': 'Basse',
+                    'medium': 'Moyenne',
+                    'high': 'Haute'
+                };
+                return labels[priority] || priority;
+            },
+
+            getStatusLabel(status) {
+                const labels = {
+                    'todo': 'À Faire',
+                    'progress': 'En Cours',
+                    'review': 'En Révision',
+                    'done': 'Terminé'
+                };
+                return labels[status] || status;
+            },
+
+            getRandomEmoji() {
+                const emojis = [
+                    '👨‍💻', '👩‍💻', '👨‍🎨', '👩‍🎨', '👨‍💼', '👩‍💼',
+                    '🧑‍💻', '🧑‍🎨', '🧑‍💼', '👨‍🔬', '👩‍🔬', '🧑‍🔬',
+                    '👨‍🏫', '👩‍🏫', '🧑‍🏫', '👨‍⚕️', '👩‍⚕️', '🧑‍⚕️',
+                    '👨‍🔧', '👩‍🔧', '🧑‍🔧', '👨‍🍳', '👩‍🍳', '🧑‍🍳',
+                    '🦸‍♂️', '🦸‍♀️', '🧙‍♂️', '🧙‍♀️', '🧚‍♂️', '🧚‍♀️'
+                ];
+                return emojis[Math.floor(Math.random() * emojis.length)];
+            },
+
+            darkenColor(color, percent) {
+                // Fonction simple pour assombrir une couleur
+                const num = parseInt(color.replace("#", ""), 16);
+                const amt = Math.round(2.55 * percent);
+                const R = (num >> 16) - amt;
+                const G = (num >> 8 & 0x00FF) - amt;
+                const B = (num & 0x0000FF) - amt;
+                return "#" + (0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 +
+                    (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 +
+                    (B < 255 ? B < 1 ? 0 : B : 255)).toString(16).slice(1);
+            },
+
+            getTimeAgo(date) {
+                const now = new Date();
+                const diffInMinutes = Math.floor((now - new Date(date)) / (1000 * 60));
+                
+                if (diffInMinutes < 1) return 'À l\'instant';
+                if (diffInMinutes < 60) return `${diffInMinutes} min`;
+                
+                const diffInHours = Math.floor(diffInMinutes / 60);
+                if (diffInHours < 24) return `${diffInHours}h`;
+                
+                const diffInDays = Math.floor(diffInHours / 24);
+                if (diffInDays < 7) return `${diffInDays}j`;
+                
+                return new Date(date).toLocaleDateString('fr-FR');
+            },
+
+            // ========================================
+            // DRAG & DROP (KANBAN)
+            // ========================================
+
+            initializeDragAndDrop() {
+                const taskCards = document.querySelectorAll('.task-card[data-task-id]');
+                const columns = document.querySelectorAll('.column-tasks');
+
+                taskCards.forEach(card => {
+                    card.draggable = true;
+                    
+                    card.addEventListener('dragstart', (e) => {
+                        e.dataTransfer.setData('text/plain', card.dataset.taskId);
+                        card.style.opacity = '0.5';
+                    });
+
+                    card.addEventListener('dragend', () => {
+                        card.style.opacity = '';
+                    });
+                });
+
+                columns.forEach(column => {
+                    column.addEventListener('dragover', (e) => {
+                        e.preventDefault();
+                        column.style.background = 'rgba(37, 99, 235, 0.1)';
+                    });
+
+                    column.addEventListener('dragleave', () => {
+                        column.style.background = '';
+                    });
+
+                    column.addEventListener('drop', async (e) => {
+                        e.preventDefault();
+                        column.style.background = '';
+                        
+                        const taskId = parseInt(e.dataTransfer.getData('text/plain'));
+                        const newStatus = column.closest('.kanban-column').dataset.status;
+                        
+                        const task = this.state.tasks.find(t => t.id === taskId);
+                        if (task && task.status !== newStatus) {
+                            const oldStatus = task.status;
+                            task.status = newStatus;
+                            
+                            // Créer une notification pour les collaborateurs
+                            if (task.collaborators && task.collaborators.length > 0) {
+                                const notification = {
+                                    id: Date.now() + Math.random(),
+                                    collaboratorId: task.collaborators[0], // Premier collaborateur
+                                    type: 'task-updated',
+                                    title: 'Tâche mise à jour',
+                                    description: `"${task.title}" est passée de "${this.getStatusLabel(oldStatus)}" à "${this.getStatusLabel(newStatus)}"`,
+                                    taskId: task.id,
+                                    isRead: false,
+                                    createdAt: new Date()
+                                };
+                                this.state.notifications.push(notification);
+                            }
+                            
+                            await this.saveDataToServer();
+                            this.updateAllViews();
+                            this.showStatus(`✅ Tâche déplacée vers "${this.getStatusLabel(newStatus)}"`, 'success');
+                        }
+                    });
+                });
+            },
+
+            // ========================================
+            // RECHERCHE ET FILTRES
+            // ========================================
+
+            setupSearch() {
+                // Fonction pour ajouter une barre de recherche (extension future)
+                console.log('🔍 Recherche prête à être implémentée');
+            },
+
+            filterTasksByCollaborator(collaboratorId) {
+                // Fonction pour filtrer par collaborateur (extension future)
+                console.log('👤 Filtrage par collaborateur:', collaboratorId);
+            },
+
+            // ========================================
+            // NOTIFICATIONS PUSH
+            // ========================================
+
+            async requestNotificationPermission() {
+                if (!('Notification' in window)) {
+                    this.showStatus('❌ Notifications non supportées par ce navigateur', 'error');
+                    return false;
+                }
+
+                if (Notification.permission === 'granted') {
+                    this.showStatus('✅ Notifications déjà autorisées', 'success');
+                    return true;
+                }
+
+                if (Notification.permission === 'denied') {
+                    this.showStatus('❌ Notifications bloquées - Modifiez les paramètres du navigateur', 'error');
+                    return false;
+                }
+
+                try {
+                    const permission = await Notification.requestPermission();
+                    if (permission === 'granted') {
+                        this.showStatus('🔔 Notifications autorisées', 'success');
+                        // Test de notification
+                        this.showBrowserNotification('WorkSpace', 'Notifications activées avec succès!', '✅');
+                        return true;
+                    } else {
+                        this.showStatus('❌ Notifications refusées', 'error');
+                        return false;
+                    }
+                } catch (error) {
+                    console.error('Erreur notification:', error);
+                    this.showStatus('❌ Erreur lors de l\'activation des notifications', 'error');
+                    return false;
+                }
+            },
+
+            showBrowserNotification(title, body, icon = '🚀') {
+                if ('Notification' in window && Notification.permission === 'granted') {
+                    new Notification(title, {
+                        body: body,
+                        icon: `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">${icon}</text></svg>`,
+                        badge: `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🚀</text></svg>`
+                    });
+                }
+            },
+
+            testNotification() {
+                if (Notification.permission === 'granted') {
+                    this.showBrowserNotification('Test WorkSpace', 'Les notifications fonctionnent parfaitement!', '✅');
+                    this.showStatus('🧪 Notification de test envoyée', 'success');
+                } else {
+                    this.showStatus('❌ Autorisez d\'abord les notifications', 'error');
+                }
+            },
+
+            // ========================================
+            // RACCOURCIS CLAVIER
+            // ========================================
+
+            initializeKeyboardShortcuts() {
+                document.addEventListener('keydown', (e) => {
+                    // Ctrl/Cmd + N = Nouvelle tâche
+                    if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+                        e.preventDefault();
+                        this.showTaskModal();
+                    }
+                    
+                    // Ctrl/Cmd + E = Nouvel événement
+                    if ((e.ctrlKey || e.metaKey) && e.key === 'e') {
+                        e.preventDefault();
+                        this.showEventModal();
+                    }
+                    
+                    // Échap = Fermer les modales
+                    if (e.key === 'Escape') {
+                        document.querySelectorAll('.modal.show').forEach(modal => {
+                            modal.classList.remove('show');
+                        });
+                    }
+                });
+            },
+
+            // ========================================
+            // STATISTIQUES AVANCÉES
+            // ========================================
+
+            getProductivityStats() {
+                const now = new Date();
+                const lastWeek = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                
+                const stats = {
+                    tasksCompletedThisWeek: this.state.tasks.filter(task => 
+                        task.status === 'done' && 
+                        new Date(task.createdAt) >= lastWeek
+                    ).length,
+                    
+                    overdueTasks: this.state.tasks.filter(task => 
+                        task.dueDate && 
+                        new Date(task.dueDate) < now && 
+                        task.status !== 'done'
+                    ).length,
+                    
+                    tasksByPriority: {
+                        high: this.state.tasks.filter(t => t.priority === 'high').length,
+                        medium: this.state.tasks.filter(t => t.priority === 'medium').length,
+                        low: this.state.tasks.filter(t => t.priority === 'low').length
+                    },
+                    
+                    completionRate: this.state.tasks.length > 0 
+                        ? Math.round((this.state.tasks.filter(t => t.status === 'done').length / this.state.tasks.length) * 100)
+                        : 0
+                };
+                
+                return stats;
+            },
+
+            // ========================================
+            // MODE SOMBRE
+            // ========================================
+
+            toggleDarkMode() {
+                document.body.classList.toggle('dark-mode');
+                const isDark = document.body.classList.contains('dark-mode');
+                localStorage.setItem('workspace-dark-mode', isDark);
+                this.showStatus(`🌙 Mode ${isDark ? 'sombre' : 'clair'} activé`, 'success');
+            },
+
+            initializeDarkMode() {
+                const savedDarkMode = localStorage.getItem('workspace-dark-mode') === 'true';
+                if (savedDarkMode) {
+                    document.body.classList.add('dark-mode');
+                }
+            }
+        };
+
+        // ========================================
+        // INITIALISATION AUTOMATIQUE
+        // ========================================
+
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🚀 Démarrage de WorkSpace v2.0...');
+            
+            // Initialiser l'application
+            App.init();
+            
+            // Initialiser les fonctionnalités supplémentaires
+            App.initializeKeyboardShortcuts();
+            App.initializeDarkMode();
+            
+            // Ajouter le drag & drop après le rendu initial
+            setTimeout(() => {
+                App.initializeDragAndDrop();
+            }, 1000);
+            
+            console.log('✅ WorkSpace v2.0 prêt à l\'utilisation!');
+            console.log('💡 Raccourcis disponibles:');
+            console.log('   - Ctrl/Cmd + N : Nouvelle tâche');
+            console.log('   - Ctrl/Cmd + E : Nouvel événement');
+            console.log('   - Échap : Fermer les modales');
+            console.log('📱 Pour connecter votre serveur Render.com, allez dans Paramètres');
+        });
+
+        // ========================================
+        // CSS MODE SOMBRE
+        // ========================================
+
+        const darkModeCSS = `
+            .dark-mode {
+                --bg-primary: #1e293b;
+                --bg-secondary: #0f172a;
+                --text-primary: #f1f5f9;
+                --text-secondary: #cbd5e1;
+                --text-muted: #64748b;
+                --border-color: #334155;
+            }
+            
+            .dark-mode .sidebar {
+                background: var(--bg-primary);
+                border-right-color: var(--border-color);
+            }
+            
+            .dark-mode .task-card {
+                background: var(--bg-secondary);
+                color: var(--text-primary);
+            }
+            
+            .dark-mode .task-card:hover {
+                background: var(--bg-primary);
+            }
+        `;
+
+        // Ajouter le CSS du mode sombre
+        const styleSheet = document.createElement('style');
+        styleSheet.textContent = darkModeCSS;
+        document.head.appendChild(styleSheet);
+
+    </script>
+</body>
+</html>
